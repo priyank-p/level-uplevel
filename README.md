@@ -33,7 +33,7 @@ A table once added can have fields, and rows.
 #### `addField(tableName, fieldName, opts)`
   - `tableName` (`string`): The table to store this
   field into.
-  - fieldName (`string`): the name of the filed,
+  - fieldName (`string`): the name of the filed, 'id' is not allowed, and names are case-sensitive.
   - `opts` (`object`):
     * `type` (`String | Date | Number | Object | Boolean`):
       the type of the field
@@ -41,6 +41,8 @@ A table once added can have fields, and rows.
     * `max` (`Number`, `Date`): The maximun value of field (will only work for date, and numbers).
     * `required` (`boolean`): weather the field is required!
     * `default` (any): the default value.
+    * `unique` (`true | false`): default is false, makes that field unique. Also
+    a note that all the rows have internally generated unique id field.
 
 #### `hasTable(tableName) -> Boolean`
   - `tableName` - the name of the table to check

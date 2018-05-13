@@ -227,6 +227,21 @@ async function test_errors() {
   }, /^ReadError: Database is not open$/);
 }
 
+async function test_addRow_unique_fields() {
+  const tableName = 'TestUniqueFields';
+  const fieldName = 'UniqueField';
+
+  await db.addTable(tableName);
+  await db.addField(tableName, fieldName, { type: Number, unique: true });
+
+  await db.addRow(tableName, { [fieldName]: 1 });
+  await assertThrows(async () => {
+    await db.addRow(tableName, { [fieldName]: 1 });
+  }, /^Error: UniqueField is set to unique, this new value is not unique.$/);
+
+  await db.addRow(tableName, { [fieldName]: 2 });
+}
+
 (async function async_test_all() {
     await test_addTable();
     await test_addField_function();
@@ -236,4 +251,5 @@ async function test_errors() {
     await test_deleteRow();
     await test_errors();
     await test_addRow_min_and_max();
+    await test_addRow_unique_fields();
 })();

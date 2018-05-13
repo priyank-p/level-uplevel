@@ -196,6 +196,19 @@ class LevelDB {
 
       if (requirements.max && fieldToAdd > requirements.max)
        throw Error(`${field} is greater than it's max value ${requirements.max}.`);
+
+      if (requirements.unique) {
+        let isUnique = true;
+        table.forEach(row => {
+          if (row[field] === fieldToAdd) {
+            isUnique = false;
+          }
+        });
+
+        if (!isUnique) {
+          throw Error(`${field} is set to unique, this new value is not unique.`);
+        }
+      }
     }
 
     if (fields.id !== undefined) {
