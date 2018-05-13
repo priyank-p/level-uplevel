@@ -111,7 +111,7 @@ class LevelDB {
   async addField(tableName, fieldName, opts) {
     await this.waitUntilReady();
 
-    // TODO: Add max, min and unique properties.
+    // TODO: Add unique properties.
     const { InternalProps } = this;
     if (!this.hasTable(tableName)) {
       const msg = `Table ${tableName} needs to added before adding fields to it!`;
@@ -185,13 +185,17 @@ class LevelDB {
       const requirements = tableOpts[field];
       const fieldToAdd = fields[field];
       const isUndefined = fieldToAdd === undefined;
-      if (requirements.required && isUndefined) {
+      if (requirements.required && isUndefined)
         throw Error(`The ${field} is required!`);
-      }
 
-      if (requirements.default && isUndefined) {
+      if (requirements.default && isUndefined)
         fields[field] = requirements.default;
-      }
+
+      if (requirements.min && fieldToAdd < requirements.min)
+        throw Error(`${field} is less than it's min value ${requirements.min}.`);
+
+      if (requirements.max && fieldToAdd > requirements.max)
+       throw Error(`${field} is greater than it's max value ${requirements.max}.`);
     }
 
     if (fields.id !== undefined) {

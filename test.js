@@ -172,6 +172,28 @@ async function test_getCurrentTable() {
   assert.deepStrictEqual(notAddedTable, []);
 }
 
+async function test_addRow_min_and_max() {
+  const tableName = 'TestMinMax';
+  const minFieldName = 'TestMinField';
+  const maxFieldName = 'TestMaxField';
+
+  await db.addTable(tableName);
+  await db.addField(tableName, minFieldName, { type: Number, min: 2 });
+  await db.addField(tableName, maxFieldName, { type: Date, max: new Date('January 20 2018') });
+
+  await assertThrows(async () => {
+    await db.addRow(tableName, {
+      [minFieldName]: 1
+    });
+  }, /^Error: TestMinField is less than it's min value 2.$/);
+
+  await assertThrows(async () => {
+    await db.addRow(tableName, {
+      [maxFieldName]: new Date('January 28 2018')
+    });
+  }, /^Error: TestMaxField is greater than it's max value/);
+}
+
 async function test_errors() {
   await assertThrows(async () => {
     await db.addRow('UNADDEDTABLE', { FILEDS: {} });
@@ -208,4 +230,5 @@ async function test_errors() {
     await test_addRow();
     await test_deleteRow();
     await test_errors();
+    await test_addRow_min_and_max();
 })();

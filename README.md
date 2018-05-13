@@ -37,6 +37,8 @@ A table once added can have fields, and rows.
   - `opts` (`object`):
     * `type` (`String | Date | Number | Object | Boolean`):
       the type of the field
+    * `min` (`Number`, `Date`): The minimum value of field (will only work for date, and numbers).
+    * `max` (`Number`, `Date`): The maximun value of field (will only work for date, and numbers).
     * `required` (`boolean`): weather the field is required!
     * `default` (any): the default value.
 
