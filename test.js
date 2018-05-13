@@ -192,6 +192,11 @@ async function test_addRow_min_and_max() {
       [maxFieldName]: new Date('January 28 2018')
     });
   }, /^Error: TestMaxField is greater than it's max value/);
+
+  await db.addRow(tableName, {
+    [minFieldName]: 3,
+    [maxFieldName]: new Date('January 10 2018')
+  });
 }
 
 async function test_errors() {
