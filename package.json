@@ -1,0 +1,28 @@
+{
+  "name": "level-uplevel",
+  "version": "1.0.0",
+  "description": "A wrapper around leveldb that provides more granular control!",
+  "main": "index.js",
+  "dependencies": {
+    "level": "3.0.1"
+  },
+  "devDependencies": {
+    "nyc": "11.7.3",
+    "sinon": "5.0.7"
+  },
+  "scripts": {
+    "test": "node test.js",
+    "coverage": "nyc -r lcov -r text-summary node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyankp10/level-uplevel.git"
+  },
+  "keywords": [],
+  "author": "Priyank Patel <priyankp390@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/priyankp10/level-uplevel/issues"
+  },
+  "homepage": "https://github.com/priyankp10/level-uplevel#readme"
+}
