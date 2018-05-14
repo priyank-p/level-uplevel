@@ -34,7 +34,7 @@ All the methods, return a promise execept an chosen few as indicated,
 which make a use of `InternalProps` that is sync between each call, which
 acts like a cache store.
 
-#### `isReady`
+#### `isReady` property
 
 Weather, uplevel is ready to be used! When you call a method
 when uplevel is not ready i will queue that task. This property
