@@ -158,7 +158,7 @@ class LevelDB {
   //      { id: 1, field: value }
   //      { id: 2, date: DateObject }
   //    ]
-  async addRow(tableName, fields) {
+  async addRow(tableName, fields = {}) {
     const { InternalProps } = this;
     const tableOpts = InternalProps.tables[tableName];
     await this.waitUntilReady();
@@ -182,6 +182,14 @@ class LevelDB {
 
       if (requirements.default && isUndefined)
         fields[field] = requirements.default;
+
+      if (requirements.type === 'Date' && requirements.timestamp) {
+        if (fieldToAdd) {
+          throw Error(`The field ${field} is set to timestamp, but a value was passed in!`);
+        }
+
+        fields[field] = new Date();
+      }
 
       const isStringField = requirements.type === 'String';
       const thingToCheck = isStringField ? fieldToAdd.length : fieldToAdd;

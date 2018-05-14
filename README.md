@@ -50,6 +50,7 @@ A table once added can have fields, and rows.
     * `max` (`Number`, `Date`): The maximun value of field (will only work for date, and numbers).
     * `required` (`boolean`): weather the field is required!
     * `default` (any): the default value.
+    * `timestamp` (`Boolean`): Make the field a timestamp, add current date.
     * `unique` (`true | false`): default is false, makes that field unique. Also
     a note that all the rows have internally generated unique id field.
 

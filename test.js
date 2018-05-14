@@ -257,6 +257,20 @@ async function test_addRow_unique_fields() {
   await db.addRow(tableName, { [fieldName]: 2 });
 }
 
+async function test_date_timestamp_option() {
+  const tableName = 'TestTimestampOption';
+  const fieldName = 'DateTimestamp';
+
+  await db.addTable(tableName);
+  await db.addField(tableName, fieldName, { type: Date, timestamp: true });
+
+  await assertThrows(async () => {
+    await db.addRow(tableName, { [fieldName]: new Date() });
+  }, /^Error: The field DateTimestamp is set to timestamp, but a value was passed in!$/);
+
+  await db.addRow(tableName);
+}
+
 (async function async_test_all() {
     await test_addTable();
     await test_addField_function();
@@ -266,6 +280,7 @@ async function test_addRow_unique_fields() {
     await test_deleteRow();
     await test_addRow_min_and_max();
     await test_addRow_unique_fields();
+    await test_date_timestamp_option();
 
     // This must be tested at last!
     await test_errors();
