@@ -199,7 +199,7 @@ class Uplevel {
       const minMaxErrors = {
         min: `${field} is less than it's min value ${requirements.min}.`,
         max: `${field} is greater than it's max value ${requirements.max}.`
-      }
+      };
 
       if (isStringField) {
         minMaxErrors.min = `${field}'s is less than its required min length ${requirements.min}.`;
@@ -252,6 +252,12 @@ class Uplevel {
       })
       .catch(this.handleLevelError);
     return rows;
+  }
+
+  hasRow(tableName, id) {
+    const { InternalProps } = this;
+    const tableIds = InternalProps.tables[tableName].ids;
+    return tableIds.includes(id);
   }
 
   async deleteRow(tableName, id) {

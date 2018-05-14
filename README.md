@@ -59,6 +59,11 @@ A table once added can have fields, and rows.
 
   Return a `Boolean` weather the table is added or not.
 
+#### `hasRow(tableNAme, id) -> Boolean`
+  - `tableName` - the name of the table to check
+  - `id` - Row id to check wheather it exists or not.
+
+
 #### `addRow(tableName, fields)`
   - `tableName` (`String`) - the table where to add this row.
   - `fields` (`Object`): the key should be the name of the field,

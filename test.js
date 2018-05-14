@@ -274,6 +274,20 @@ async function test_date_timestamp_option() {
   await db.addRow(tableName);
 }
 
+async function test_hasRow() {
+  const tableName = 'TestHasRow';
+  const fieldName = 'Test';
+
+  await db.createTable(tableName);
+  await db.addField(tableName, fieldName, { type: Number });
+  await db.addRow(tableName, { [fieldName]: 0 });
+  await db.addRow(tableName, { [fieldName]: 1 });
+
+  await db.deleteRow(tableName, 0);
+  assert.deepStrictEqual(db.hasRow(tableName, 0), false);
+  assert.deepStrictEqual(db.hasRow(tableName, 1), true);
+}
+
 (async function async_test_all() {
     await test_createTable();
     await test_addField_function();
@@ -284,6 +298,7 @@ async function test_date_timestamp_option() {
     await test_addRow_min_and_max();
     await test_addRow_unique_fields();
     await test_date_timestamp_option();
+    await test_hasRow();
 
     // This must be tested at last!
     await test_errors();
