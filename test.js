@@ -2,7 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const sinon = require('sinon');
-const LevelDB = require('./index');
+const uplevel = require('./index');
 
 const testDBPath = path.resolve(__dirname, 'test-db');
 function rmTestDB() {
@@ -27,7 +27,7 @@ async function assertThrows(func, exception) {
   }, exception);
 }
 
-const db = new LevelDB(testDBPath);
+const db = new uplevel(testDBPath);
 const levelDB = db.db;
 
 async function getFromDB(key) {
@@ -227,7 +227,7 @@ async function test_errors() {
     await db.addRow('TestAddFieldTable', { nameField: 'value', id: 342 });
   }, /^Error: Cannot pass custom id, it is auto generated!$/);
 
-  const newDB = new LevelDB(testDBPath);
+  const newDB = new uplevel(testDBPath);
   await new Promise(resolve => {
     process.on('unhandledRejection', (err) => {
       assert.throws(() => {

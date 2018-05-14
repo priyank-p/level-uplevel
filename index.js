@@ -1,6 +1,6 @@
 const level = require('level');
 
-class LevelDB {
+class Uplevel {
   /*
     Create a db, form the path passed in
     then read the internal props for db.
@@ -272,4 +272,4 @@ class LevelDB {
   }
 }
 
-module.exports = LevelDB;
+module.exports = Uplevel;
