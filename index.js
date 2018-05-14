@@ -95,11 +95,6 @@ class LevelDB {
 
 
   /*
-    The field opts includes
-      `type` (String, Date, Number, Object, Boolean) - required
-      `required` boolean - wheather the field is required.
-      `default` any - must not be used when required is present.
-
     The field id is already present and is uniques by default.
     Its not possible to pass in id field.
 
