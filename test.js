@@ -2,7 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const sinon = require('sinon');
-const uplevel = require('./index');
+const uplevel = require('./uplevel');
 
 const testDBPath = path.resolve(__dirname, 'test-db');
 function rmTestDB() {
