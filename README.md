@@ -34,7 +34,7 @@ process.on('unhandledRejection', (error, promise) => {
 
 This property hold all the `level.errors` of the `level` module used internally.
 
-#### `addTable(tableName)`
+#### `createTable(tableName)`
   - `tableName` (`string`):  the name of table
 
 A table once added can have fields, and rows.
