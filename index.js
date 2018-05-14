@@ -39,15 +39,15 @@ class LevelDB {
       });
   }
 
-  // TODO: Make sure this is called where needed and
-  // in the tests this is stubbed after awaiting the this.readyPromise
-  // externally and make sure this is called whereever needed this
-  // is most fragile piece that has to done this way.
+  // This is really important since, we rely on the
+  // InterProps, for the whole module to work correctly.
+  // currently all the important properties call this method
+  // and it tested via sinon's spy.
   async waitUntilReady() {
     await this.readyPromise;
   }
 
-  // TODO: likewise waitUntilReady we also want to check for this
+  // likewise waitUntilReady we also want to check for this
   // method being called by using spies or something like that
   // This method is also as important as waitUntilReady since if the
   // properties are not upto date between script up/down or when a program is killed
