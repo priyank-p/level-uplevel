@@ -293,6 +293,15 @@ async function test_hasRow() {
   assert.deepStrictEqual(db.hasRow(tableName, 1), true);
 }
 
+async function test_deleteTable() {
+  const tableName = 'TestDeleteRow';
+
+  await db.createTable(tableName);
+  await db.deleteTable(tableName);
+
+  assert.deepStrictEqual(db.hasTable(tableName), false);
+}
+
 (async function async_test_all() {
     await test_createTable();
     await test_addField_function();
@@ -304,6 +313,7 @@ async function test_hasRow() {
     await test_addRow_unique_fields();
     await test_date_timestamp_option();
     await test_hasRow();
+    await test_deleteTable();
 
     // This must be tested at last!
     await test_errors();

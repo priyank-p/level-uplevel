@@ -97,6 +97,14 @@ class Uplevel {
     await this.syncInternalProps();
   }
 
+  async deleteTable(name) {
+    await this.waitUntilReady();
+
+    const { InternalProps, db } = this;
+    delete InternalProps.tables[name];
+    await db.del(name);
+    await this.syncInternalProps();
+  }
 
   /*
     The field id is already present and is uniques by default.

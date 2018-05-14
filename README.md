@@ -95,3 +95,8 @@ Return all the data stored in a table. This method return array:
   - `id` (`Number`): The id of the to delete.
 
   The ids are auto generated, and return by `getAllRows` method.
+
+#### `deleteTable(tableName)`
+  - `tableName` (`String`): the name of table.
+
+  Delete a table from db.
