@@ -1,7 +1,7 @@
 {
   "name": "level-uplevel",
   "version": "1.0.0",
-  "description": "A wrapper around leveldb that provides more granular control!",
+  "description": "A neat wrapper fo leveldb, that allow you to use tables, fields and rows.",
   "main": "index.js",
   "dependencies": {
     "level": "3.0.1"
