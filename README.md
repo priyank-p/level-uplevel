@@ -30,6 +30,10 @@ process.on('unhandledRejection', (error, promise) => {
 
 ## API
 
+All the methods, return a promise execept an chosen few as indicated,
+which make a use of `InternalProps` that is sync between each call, which
+acts like a cache store.
+
 #### `isReady`
 
 Weather, uplevel is ready to be used! When you call a method
