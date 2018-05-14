@@ -8,7 +8,7 @@ const testDBPath = path.resolve(__dirname, 'test-db');
 function rmTestDB() {
   const files = fs.readdirSync(testDBPath);
   files.forEach(file => {
-    file = path.resolve(__dirname, file);
+    file = path.resolve(testDBPath, file);
     fs.unlinkSync(file);
   });
   fs.rmdirSync(testDBPath);
