@@ -132,6 +132,8 @@ class Uplevel {
   }
 
   async getCurrentTable(tableName) {
+    await this.readyPromise;
+
     const { db, handleLevelError } = this;
     return new Promise(resolve => {
       db.get(tableName)
@@ -147,6 +149,7 @@ class Uplevel {
   }
 
   async saveTable(tableName, table) {
+    await this.readyPromise;
     await this.db.put(tableName, table)
       .catch(this.handleLevelError);
   }
@@ -240,6 +243,8 @@ class Uplevel {
   }
 
   async getAllRows(tableName) {
+    await this.readyPromise;
+
     let rows = [];
     await this.db.get(tableName)
       .then(data => {
@@ -250,6 +255,8 @@ class Uplevel {
   }
 
   async deleteRow(tableName, id) {
+    await this.readyPromise;
+
     const { InternalProps } = this;
     const table = await this.getCurrentTable(tableName);
     let rowIndex = null;
