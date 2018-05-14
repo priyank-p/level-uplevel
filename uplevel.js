@@ -25,17 +25,21 @@ class Uplevel {
     this.levelDBErrors = level.errors;
 
     this.db = db;
+    this.isReady = false;
     this.readyPromise = db.get('__InternalProps')
       .then(/* istanbul ignore next */(props) => {
         // make json date object be a date object.
         props = this.convertDateJSON(props);
         this.InternalProps = props;
+        this.isReady = true;
       })
       .catch(err => {
         this.handleLevelError(err);
         this.InternalProps = {
           tables: {}
         };
+
+        this.isReady = true;
       });
   }
 

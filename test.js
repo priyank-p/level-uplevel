@@ -58,6 +58,11 @@ const syncInternalPropsStub = sinon.spy(db, 'syncInternalProps');
 async function test_createTable() {
   await db.createTable('TestAddTable');
   await checkSameInternalProps();
+
+  // at this point the readyPromise shoudl
+  // resolve
+  assert.deepStrictEqual(db.isReady, true, 'DB is not ready yet!');
+
   assert.deepStrictEqual(waitUntilReadyStub.callCount, 1);
   assert.deepStrictEqual(syncInternalPropsStub.callCount, 1);
 }

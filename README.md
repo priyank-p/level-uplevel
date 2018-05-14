@@ -30,6 +30,12 @@ process.on('unhandledRejection', (error, promise) => {
 
 ## API
 
+#### `isReady`
+
+Weather, uplevel is ready to be used! When you call a method
+when uplevel is not ready i will queue that task. This property
+is to be used to know if `hasTable` or `hasRow` can be used.
+
 #### `levelDBErrors` property
 
 This property hold all the `level.errors` of the `level` module used internally.
@@ -58,11 +64,13 @@ A table once added can have fields, and rows.
   - `tableName` - the name of the table to check
 
   Return a `Boolean` weather the table is added or not.
+  Note: Do check `isReady` before using this method.
 
 #### `hasRow(tableNAme, id) -> Boolean`
   - `tableName` - the name of the table to check
   - `id` - Row id to check wheather it exists or not.
 
+  Note: Do check `isReady` before using this method.
 
 #### `addRow(tableName, fields)`
   - `tableName` (`String`) - the table where to add this row.
