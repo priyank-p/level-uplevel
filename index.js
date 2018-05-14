@@ -22,8 +22,6 @@ class LevelDB {
       valueEncoding: 'json'
     });
 
-    // expose level db errors for testing
-    // the NotFoundError error
     this.levelDBErrors = level.errors;
 
     this.db = db;
