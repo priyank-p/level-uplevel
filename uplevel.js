@@ -267,7 +267,7 @@ class Uplevel {
     });
 
     if (rowIndex === null) {
-      return;
+      throw Error('Cannot delete a row that not added yet!');
     }
 
     const internalTableIds = InternalProps.tables[tableName].ids;

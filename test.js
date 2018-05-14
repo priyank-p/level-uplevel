@@ -141,8 +141,11 @@ async function test_deleteRow() {
   assert.deepStrictEqual(rows.length, 1);
   assert.deepStrictEqual(rows[0].id, 1);
 
-  // try to delete no exsistent row
-  await db.deleteRow(tableName, 45);
+  await assertThrows(async () => {
+    await db.deleteRow(tableName, 45);
+  }, /^Error: Cannot delete a row that not added yet!$/);
+
+
   const newRows = await db.getAllRows(tableName);
   assert.deepEqual(rows, newRows);
   assert.deepStrictEqual(rows.length, 1);
