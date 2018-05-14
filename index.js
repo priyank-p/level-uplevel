@@ -90,7 +90,7 @@ class Uplevel {
 
     const { InternalProps } = this;
     InternalProps.tables[name] = { ids: [] };
-    await this.syncInternalProps(this);
+    await this.syncInternalProps();
   }
 
 
