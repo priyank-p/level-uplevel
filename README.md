@@ -1,10 +1,10 @@
 # level-uplevel
 
-Uplevel provides, organized way to store data along with
-use of fast key-value storing power of leveldb. It uses
-tables, fields and rows like a sql type db but stored in
+Uplevel provides, organized way to store data like sql databases, while
+using no-sql fast key-value based database [LevelDB](https://github.com/Level/level).
+It uses tables, fields and rows like a sql type db but stored in
 key value pairs in db. It hold all its internal date in a key
-called `__InternalProps` and every table you add is its own key in db.
+called `__InternalProps` and every table you add is in its own key in db.
 
 Uplevel consists of tables, fields, and rows, the tables
 are the way you can classify data. You can add fields to data
@@ -18,12 +18,21 @@ const db = new uplevel('./db');
 
 // to handle error thrown by leveldb internally
 // if it can't open db
+// This is because level either passes error in a callback
+// sent in which is impossible to implement along side with uplevel.
+// and if no callback is passed then it throws in a promise internally
+// which could be caught this way.
+// For more context look at the level constructor https://github.com/Level/level#const-db--levellocation-options-callback
 process.on('unhandledRejection', (error, promise) => {
   /* Your Code */
 })
 ```
 
 ## API
+
+#### `levelDBErrors` property
+
+This property hold all the `level.errors` of the `level` module used internally.
 
 #### `addTable(tableName)`
   - `tableName` (`string`):  the name of table
