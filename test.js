@@ -55,6 +55,10 @@ const syncInternalPropsStub = sinon.spy(db, 'syncInternalProps');
   assert.deepStrictEqual(DBCreated, true);
 })();
 
+
+let readySpyCount = 0;
+let internalPropSpyCount = 0;
+
 async function test_createTable() {
   await db.createTable('TestAddTable');
   await checkSameInternalProps();
@@ -63,8 +67,17 @@ async function test_createTable() {
   // resolve
   assert.deepStrictEqual(db.isReady, true, 'DB is not ready yet!');
 
-  assert.deepStrictEqual(waitUntilReadyStub.callCount, 1);
-  assert.deepStrictEqual(syncInternalPropsStub.callCount, 1);
+  assert.deepStrictEqual(waitUntilReadyStub.callCount, readySpyCount + 1);
+  assert.deepStrictEqual(syncInternalPropsStub.callCount, readySpyCount + 1);
+
+  // check that the table did not get overwritten
+  // if thats the case syncInternalPropsStub should have the same count
+  await db.createTable('TestAddTable');
+  assert.deepStrictEqual(waitUntilReadyStub.callCount, readySpyCount + 2);
+  assert.deepStrictEqual(syncInternalPropsStub.callCount, internalPropSpyCount + 1);
+
+  readySpyCount += 2;
+  internalPropSpyCount += 1;
 }
 
 async function test_addField_function() {
@@ -89,8 +102,11 @@ async function test_addField_function() {
   // one more times for each addField call
   // so 3 for this test case + 1 from before.
   await checkSameInternalProps();
-  assert.deepStrictEqual(waitUntilReadyStub.callCount, 4);
-  assert.deepStrictEqual(syncInternalPropsStub.callCount, 4);
+  assert.deepStrictEqual(waitUntilReadyStub.callCount, readySpyCount + 3);
+  assert.deepStrictEqual(syncInternalPropsStub.callCount, internalPropSpyCount + 3);
+
+  readySpyCount += 3;
+  internalPropSpyCount += 3;
 }
 
 async function test_addRow() {
@@ -121,8 +137,11 @@ async function test_addRow() {
   });
 
   await checkSameInternalProps();
-  assert.deepStrictEqual(waitUntilReadyStub.callCount, 8);
-  assert.deepStrictEqual(syncInternalPropsStub.callCount, 6);
+  assert.deepStrictEqual(waitUntilReadyStub.callCount, readySpyCount + 3);
+  assert.deepStrictEqual(syncInternalPropsStub.callCount, internalPropSpyCount + 2);
+
+  readySpyCount += 3;
+  internalPropSpyCount += 2;
 }
 
 (function test_levelErrorHandler() {
@@ -171,8 +190,10 @@ async function test_addField_error_when_no_table_added() {
   });
 
   await checkSameInternalProps();
-  assert.deepStrictEqual(waitUntilReadyStub.callCount, 5);
-  assert.deepStrictEqual(syncInternalPropsStub.callCount, 4);
+  assert.deepStrictEqual(waitUntilReadyStub.callCount, readySpyCount + 1);
+  assert.deepStrictEqual(syncInternalPropsStub.callCount, internalPropSpyCount);
+
+  readySpyCount += 1;
 }
 
 async function test_getCurrentTable() {

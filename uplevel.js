@@ -91,6 +91,9 @@ class Uplevel {
   // to an empty array, other fields will be added
   async createTable(name) {
     await this.waitUntilReady();
+    if (this.hasTable(name)) {
+      return;
+    }
 
     const { InternalProps } = this;
     InternalProps.tables[name] = { ids: [] };

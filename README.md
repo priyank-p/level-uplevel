@@ -52,7 +52,7 @@ A table once added can have fields, and rows.
 #### `addField(tableName, fieldName, opts)`
   - `tableName` (`string`): The table to store this
   field into.
-  - fieldName (`string`): the name of the filed, 'id' is not allowed, and names are case-sensitive.
+  - `fieldName` (`string`): the name of the filed, 'id' is not allowed, and names are case-sensitive.
   - `opts` (`object`):
     * `type` (`String | Date | Number | Object | Boolean`):
       the type of the field
