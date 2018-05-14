@@ -85,7 +85,7 @@ class Uplevel {
   // All the tables will be stored in InternalProps.tables
   // to when a new table is added it's an object with ids set
   // to an empty array, other fields will be added
-  async addTable(name) {
+  async createTable(name) {
     await this.waitUntilReady();
 
     const { InternalProps } = this;

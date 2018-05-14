@@ -55,8 +55,8 @@ const syncInternalPropsStub = sinon.spy(db, 'syncInternalProps');
   assert.deepStrictEqual(DBCreated, true);
 })();
 
-async function test_addTable() {
-  await db.addTable('TestAddTable');
+async function test_createTable() {
+  await db.createTable('TestAddTable');
   await checkSameInternalProps();
   assert.deepStrictEqual(waitUntilReadyStub.callCount, 1);
   assert.deepStrictEqual(syncInternalPropsStub.callCount, 1);
@@ -75,12 +75,12 @@ async function test_addField_function() {
     default: new Date()
   };
 
-  await db.addTable(tableName);
+  await db.createTable(tableName);
   await db.addField(tableName, 'nameField', nameField);
   await db.addField(tableName, 'optionalField', optionalField);
 
   // both methods should have been called 3 more times
-  // one for addTable call
+  // one for createTable call
   // one more times for each addField call
   // so 3 for this test case + 1 from before.
   await checkSameInternalProps();
@@ -178,7 +178,7 @@ async function test_addRow_min_and_max() {
   const maxFieldName = 'TestMaxField';
   const stringFieldName = 'TestMinMaxStringField';
 
-  await db.addTable(tableName);
+  await db.createTable(tableName);
   await db.addField(tableName, minFieldName, { type: Number, min: 2 });
   await db.addField(tableName, maxFieldName, { type: Date, max: new Date('January 20 2018') });
   await db.addField(tableName, stringFieldName, { type: String, min: 2, max: 5 });
@@ -246,7 +246,7 @@ async function test_addRow_unique_fields() {
   const tableName = 'TestUniqueFields';
   const fieldName = 'UniqueField';
 
-  await db.addTable(tableName);
+  await db.createTable(tableName);
   await db.addField(tableName, fieldName, { type: Number, unique: true });
 
   await db.addRow(tableName, { [fieldName]: 1 });
@@ -261,7 +261,7 @@ async function test_date_timestamp_option() {
   const tableName = 'TestTimestampOption';
   const fieldName = 'DateTimestamp';
 
-  await db.addTable(tableName);
+  await db.createTable(tableName);
   await db.addField(tableName, fieldName, { type: Date, timestamp: true });
 
   await assertThrows(async () => {
@@ -272,7 +272,7 @@ async function test_date_timestamp_option() {
 }
 
 (async function async_test_all() {
-    await test_addTable();
+    await test_createTable();
     await test_addField_function();
     await test_addField_error_when_no_table_added();
     await test_getCurrentTable();
