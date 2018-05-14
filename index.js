@@ -111,7 +111,6 @@ class LevelDB {
   async addField(tableName, fieldName, opts) {
     await this.waitUntilReady();
 
-    // TODO: Add unique properties.
     const { InternalProps } = this;
     if (!this.hasTable(tableName)) {
       const msg = `Table ${tableName} needs to added before adding fields to it!`;
