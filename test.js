@@ -176,10 +176,12 @@ async function test_addRow_min_and_max() {
   const tableName = 'TestMinMax';
   const minFieldName = 'TestMinField';
   const maxFieldName = 'TestMaxField';
+  const stringFieldName = 'TestMinMaxStringField';
 
   await db.addTable(tableName);
   await db.addField(tableName, minFieldName, { type: Number, min: 2 });
   await db.addField(tableName, maxFieldName, { type: Date, max: new Date('January 20 2018') });
+  await db.addField(tableName, stringFieldName, { type: String, min: 2, max: 5 });
 
   await assertThrows(async () => {
     await db.addRow(tableName, {
@@ -193,9 +195,22 @@ async function test_addRow_min_and_max() {
     });
   }, /^Error: TestMaxField is greater than it's max value/);
 
+  await assertThrows(async () => {
+    await db.addRow(tableName, {
+      [stringFieldName]: 'A'
+    });
+  }, /^Error: TestMinMaxStringField's is less than its required min length 2.$/);
+
+  await assertThrows(async () => {
+    await db.addRow(tableName, {
+      [stringFieldName]: 'ABCDEFHJJS'
+    });
+  }, /^Error: TestMinMaxStringField's is greather its than required max length 5.$/);
+
   await db.addRow(tableName, {
     [minFieldName]: 3,
-    [maxFieldName]: new Date('January 10 2018')
+    [maxFieldName]: new Date('January 10 2018'),
+    [stringFieldName]: 'ABCD'
   });
 }
 
@@ -249,7 +264,9 @@ async function test_addRow_unique_fields() {
     await test_getCurrentTable();
     await test_addRow();
     await test_deleteRow();
-    await test_errors();
     await test_addRow_min_and_max();
     await test_addRow_unique_fields();
+
+    // This must be tested at last!
+    await test_errors();
 })();

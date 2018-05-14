@@ -188,11 +188,23 @@ class LevelDB {
       if (requirements.default && isUndefined)
         fields[field] = requirements.default;
 
-      if (requirements.min && fieldToAdd < requirements.min)
-        throw Error(`${field} is less than it's min value ${requirements.min}.`);
+      const isStringField = requirements.type === 'String';
+      const thingToCheck = isStringField ? fieldToAdd.length : fieldToAdd;
+      const minMaxErrors = {
+        min: `${field} is less than it's min value ${requirements.min}.`,
+        max: `${field} is greater than it's max value ${requirements.max}.`
+      }
 
-      if (requirements.max && fieldToAdd > requirements.max)
-       throw Error(`${field} is greater than it's max value ${requirements.max}.`);
+      if (isStringField) {
+        minMaxErrors.min = `${field}'s is less than its required min length ${requirements.min}.`;
+        minMaxErrors.max = `${field}'s is greather its than required max length ${requirements.max}.`;
+      }
+
+      if (requirements.min && thingToCheck < requirements.min)
+        throw Error(minMaxErrors.min);
+
+      if (requirements.max && thingToCheck > requirements.max)
+       throw Error(minMaxErrors.max);
 
       if (requirements.unique) {
         let isUnique = true;
