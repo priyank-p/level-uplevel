@@ -8,9 +8,6 @@ cache:
   directories:
     - node_modules
 
-install:
-  - npm ci
-
 script:
   - npm run coverage
 
