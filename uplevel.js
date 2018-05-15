@@ -177,74 +177,19 @@ class Uplevel {
   //      { id: 2, date: DateObject }
   //    ]
   async addRow(tableName, fields = {}) {
-    const { InternalProps } = this;
-    const tableOpts = InternalProps.tables[tableName];
     await this.waitUntilReady();
-
-
     if (!this.hasTable(tableName)) {
       throw Error('Cannot add fields to a table that is not added!');
     }
 
     const table = await this.getCurrentTable(tableName);
-    for (let field in tableOpts) {
-      if (field === 'ids') {
-        continue;
-      }
-
-      const requirements = tableOpts[field];
-      const fieldToAdd = fields[field];
-      const isUndefined = fieldToAdd === undefined;
-      if (requirements.required && isUndefined)
-        throw Error(`The ${field} is required!`);
-
-      if (requirements.default && isUndefined)
-        fields[field] = requirements.default;
-
-      if (requirements.type === 'Date' && requirements.timestamp) {
-        if (fieldToAdd) {
-          throw Error(`The field ${field} is set to timestamp, but a value was passed in!`);
-        }
-
-        fields[field] = new Date();
-      }
-
-      const isStringField = requirements.type === 'String';
-      const thingToCheck = isStringField ? fieldToAdd.length : fieldToAdd;
-      const minMaxErrors = {
-        min: `${field} is less than it's min value ${requirements.min}.`,
-        max: `${field} is greater than it's max value ${requirements.max}.`
-      };
-
-      if (isStringField) {
-        minMaxErrors.min = `${field}'s is less than its required min length ${requirements.min}.`;
-        minMaxErrors.max = `${field}'s is greather its than required max length ${requirements.max}.`;
-      }
-
-      if (requirements.min && thingToCheck < requirements.min)
-        throw Error(minMaxErrors.min);
-
-      if (requirements.max && thingToCheck > requirements.max)
-       throw Error(minMaxErrors.max);
-
-      if (requirements.unique) {
-        let isUnique = true;
-        table.forEach(row => {
-          if (row[field] === fieldToAdd) {
-            isUnique = false;
-          }
-        });
-
-        if (!isUnique) {
-          throw Error(`${field} is set to unique, this new value is not unique.`);
-        }
-      }
-    }
-
+    fields = this._checkAndDefault(tableName, fields, table);
     if (fields.id !== undefined) {
       throw Error('Cannot pass custom id, it is auto generated!');
     }
 
+    const { InternalProps } = this;
+    const tableOpts = InternalProps.tables[tableName];
     const newId = tableOpts.ids.length;
     tableOpts.ids.push(newId);
     delete fields['id'];
@@ -297,6 +242,88 @@ class Uplevel {
 
     table.splice(rowIndex, 1);
     await this.saveTable(tableName, table);
+  }
+
+  async updateRow(tableName, id, updatedFields) {
+    await this.waitUntilReady();
+    const table = await this.getCurrentTable(tableName);
+    if (!this.hasRow(tableName, id)) {
+      throw Error('Cannot update row that not added.');
+    }
+
+    let updateIndex;
+    table.forEach((row, index) => {
+      if (row.id === id)
+        updateIndex = id;
+    });
+
+    // it would be bad to let id get updated
+    delete updatedFields['id'];
+    table[updateIndex] = { ...table[updateIndex], ...updatedFields };
+    table[updateIndex] = this._checkAndDefault(tableName, table[updateIndex], table);
+    await this.saveTable(tableName, table);
+  }
+
+  // this check each row and make sure each fields have
+  // correct type and value!
+  _checkAndDefault(tableName, row, table) {
+    const { InternalProps } = this;
+    const fieldOpts = InternalProps.tables[tableName];
+    for (let field in fieldOpts) {
+      if (field === 'ids') {
+        continue;
+      }
+
+      const requirements = fieldOpts[field];
+      const fieldToAdd = row[field];
+      const isUndefined = fieldToAdd === undefined;
+      if (requirements.required && isUndefined)
+        throw Error(`The ${field} is required!`);
+
+      if (requirements.default && isUndefined)
+        row[field] = requirements.default;
+
+      if (requirements.type === 'Date' && requirements.timestamp) {
+        if (fieldToAdd) {
+          throw Error(`The field ${field} is set to timestamp, but a value was passed in!`);
+        }
+
+        row[field] = new Date();
+      }
+
+      const isStringField = requirements.type === 'String';
+      const thingToCheck = isStringField ? fieldToAdd.length : fieldToAdd;
+      const minMaxErrors = {
+        min: `${field} is less than it's min value ${requirements.min}.`,
+        max: `${field} is greater than it's max value ${requirements.max}.`
+      };
+
+      if (isStringField) {
+        minMaxErrors.min = `${field}'s is less than its required min length ${requirements.min}.`;
+        minMaxErrors.max = `${field}'s is greather its than required max length ${requirements.max}.`;
+      }
+
+      if (requirements.min && thingToCheck < requirements.min)
+        throw Error(minMaxErrors.min);
+
+      if (requirements.max && thingToCheck > requirements.max)
+       throw Error(minMaxErrors.max);
+
+      if (requirements.unique) {
+        let isUnique = true;
+        table.forEach(row => {
+          if (row[field] === fieldToAdd) {
+            isUnique = false;
+          }
+        });
+
+        if (!isUnique) {
+          throw Error(`${field} is set to unique, this new value is not unique.`);
+        }
+      }
+    }
+
+    return row;
   }
 }
 

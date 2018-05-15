@@ -110,3 +110,10 @@ Return all the data stored in a table. This method return array:
   - `tableName` (`String`): the name of table.
 
   Delete a table from db.
+
+#### `updateRow(tableName, id, fields)`
+  - `tableName` (`String`): the name of table.
+  - `id` (`Number`): the id of the row to update.
+  - `fields` (`Object`): the fiels to update.
+
+  Allows you to update a row in a table.

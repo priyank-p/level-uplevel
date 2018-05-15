@@ -323,6 +323,33 @@ async function test_deleteTable() {
   assert.deepStrictEqual(db.hasTable(tableName), false);
 }
 
+async function test_updateRow() {
+  const tableName = 'TestUpdateRow';
+  const fieldName = 'Test';
+
+  await db.createTable(tableName);
+  await db.addField(tableName, fieldName, { type: Number });
+  await db.addRow(tableName, { [fieldName]: 10 });
+  await db.addRow(tableName, { [fieldName]: 20 });
+
+  let rows = await db.getAllRows(tableName);
+  assert.deepEqual(rows, [
+    { [fieldName]: 10, id: 0 },
+    { [fieldName]: 20, id: 1 }
+  ]);
+
+  await db.updateRow(tableName, 0, {
+    id: 110, // this should be updated!
+    [fieldName]: 23
+  });
+
+  rows = await db.getAllRows(tableName);
+  assert.deepEqual(rows, [
+    { [fieldName]: 23, id: 0 },
+    { [fieldName]: 20, id: 1 }
+  ]);
+}
+
 (async function async_test_all() {
     await test_createTable();
     await test_addField_function();
@@ -335,6 +362,7 @@ async function test_deleteTable() {
     await test_date_timestamp_option();
     await test_hasRow();
     await test_deleteTable();
+    await test_updateRow();
 
     // This must be tested at last!
     await test_errors();
