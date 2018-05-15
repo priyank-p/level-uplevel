@@ -1,7 +1,3 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
 version: 2
 jobs:
   build:
@@ -29,5 +25,19 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
-      - run: npm test
+      - run:
+          name: Debug info
+          command: |
+            npm --version
+            node --version
+            npx --version
+
+      - run:
+          name: Run tests
+          command: |
+            npm run coverage
+      - run:
+          name: Upload coverage reports
+          command: |
+            npm i codecov
+            npx nyc report --reporter=lcov > coverage.lcov && codecov
