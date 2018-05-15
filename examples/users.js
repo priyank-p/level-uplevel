@@ -42,6 +42,8 @@ async function filterUserBy(field, value) {
 }
 
 (async function() {
+  await db.waitUntilReady();
+
   console.time('create-db');
   await createUsersTable(); // on average 16.27ms.
   console.timeEnd('create-db');
