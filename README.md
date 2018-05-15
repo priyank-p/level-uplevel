@@ -47,7 +47,8 @@ This property hold all the `level.errors` of the `level` module used internally.
 #### `createTable(tableName)`
   - `tableName` (`string`):  the name of table
 
-A table once added can have fields, and rows.
+A table once added can have fields, and rows. If table is already
+created it just returns.
 
 #### `addField(tableName, fieldName, opts)`
   - `tableName` (`string`): The table to store this
