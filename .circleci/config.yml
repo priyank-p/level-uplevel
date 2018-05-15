@@ -1,0 +1,71 @@
+version: 2
+jobs:
+  "uplevel-tests-node-8":
+    docker:
+      - image: circleci/node:8
+
+    working_directory: ~/level-uplevel
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run:
+          name: Debug info
+          command: |
+            npm --version
+            node --version
+      - run:
+          name: Run tests
+          command: |
+            npm run coverage
+      - run:
+          name: Upload coverage reports
+          command: |
+            npm i codecov
+            npx nyc report --reporter=lcov > coverage.lcov && npx codecov
+
+  "uplevel-tests-node-10":
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/level-uplevel
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+      - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run:
+          name: Debug info
+          command: |
+            npm --version
+            node --version
+      - run:
+          name: Run tests
+          command: |
+            npm run coverage
+      - run:
+          name: Upload coverage reports
+          command: |
+            npm i codecov
+            npx nyc report --reporter=lcov > coverage.lcov && npx codecov
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "uplevel-tests-node-8"
+      - "uplevel-tests-node-10"
