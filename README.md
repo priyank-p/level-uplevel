@@ -13,8 +13,11 @@ uplevel is fully async, and depends of `async/await`.
 
 ## Usage:
 ```javascript
-const uplevel = require('level-uplevel');
-const db = new uplevel('./db');
+const Uplevel = require('level-uplevel');
+const path = require('path');
+
+const DB_PATH = path.join(__dirname, 'my-db');
+const db = new uplevel(DB_PATH);
 
 // to handle error thrown by leveldb internally
 // if it can't open db
@@ -25,7 +28,7 @@ const db = new uplevel('./db');
 // For more context look at the level constructor https://github.com/Level/level#const-db--levellocation-options-callback
 process.on('unhandledRejection', (error, promise) => {
   /* Your Code */
-})
+});
 ```
 
 ## API
