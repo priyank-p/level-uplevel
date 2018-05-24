@@ -1,330 +1,201 @@
 const level = require('level');
 
-class Uplevel {
-  /*
-    Create a db, form the path passed in
-    then read the internal props for db.
-
-    InternalProps will be like a DB tracker,
-    which will make use to fast key, value paring
-    of LevelDB with the organization of DB Tables, Fields
-    and Rows.
-
-    InternalProps are the main components. So it needs to
-    be tested really carefully!
-  */
-  constructor(filePath) {
-    let db;
-
-    // if an error occures this
-    // will throw
-    db = level(filePath, {
-      valueEncoding: 'json'
-    });
-
-    this.levelDBErrors = level.errors;
-
-    this.db = db;
-    this.isReady = false;
-    this.readyPromise = db.get('__InternalProps')
-      .then(/* istanbul ignore next */(props) => {
-        // make json date object be a date object.
-        props = this.convertDateJSON(props);
-        this.InternalProps = props;
-        this.isReady = true;
-      })
-      .catch(err => {
-        this.handleLevelError(err);
-        this.InternalProps = {
-          tables: {}
-        };
-
-        this.isReady = true;
-      });
+class UplevelTableInstance {
+  constructor(uplevel, tableName) {
+    this.uplevel = uplevel;
+    this.tableName = tableName;
   }
 
-  // This is really important since, we rely on the
-  // InterProps, for the whole module to work correctly.
-  // currently all the important properties call this method
-  // and it tested via sinon's spy.
-  async waitUntilReady() {
-    await this.readyPromise;
+  async add(field) {
+    await this.uplevel.addField(this.tableName, field);
+    return this.add;
   }
-
-  // likewise waitUntilReady we also want to check for this
-  // method being called by using spies or something like that
-  // This method is also as important as waitUntilReady since if the
-  // properties are not upto date between script up/down or when a program is killed
-  // and/or restarted, the whole DB will be broken! For this method we also want
-  // to check if the this.InternalProps == DB's __InternalProps!
-  // Not to say addTable, addRows, and addField are not that important
-  // tho they can be easily and will be tested.
-  syncInternalProps() {
-    const { InternalProps, db } = this;
-    return db.put('__InternalProps', InternalProps)
-      .catch(err => {
-        throw err;
-      });
-  }
-
-  // convert date json objects to real
-  // date object's.
-  convertDateJSON(props) {
-    for (let prop in props) {
-      if (typeof props[prop] === 'object') {
-        props[prop] = this.convertDateJSON(props[prop]);
-      }
-
-      if (typeof props[prop] === 'string') {
-        const parsedDate = Date.parse(props[prop]);
-        if (!isNaN(parsedDate)) {
-          props[prop] = new Date(parsedDate);
-        }
-      }
-    }
-
-    return props;
-  }
-
-  // All the tables will be stored in InternalProps.tables
-  // to when a new table is added it's an object with ids set
-  // to an empty array, other fields will be added
-  async createTable(name) {
-    await this.waitUntilReady();
-    if (this.hasTable(name)) {
-      return;
-    }
-
-    const { InternalProps } = this;
-    InternalProps.tables[name] = { ids: [] };
-    await this.syncInternalProps();
-  }
-
-  async deleteTable(name) {
-    await this.waitUntilReady();
-
-    const { InternalProps, db } = this;
-    delete InternalProps.tables[name];
-    await db.del(name);
-    await this.syncInternalProps();
-  }
-
-  /*
-    The field id is already present and is uniques by default.
-    Its not possible to pass in id field.
-
-    Note: The object field is a convienent filed, can be used for
-    some already computed stuff, and for internal use only.
-  */
-  async addField(tableName, fieldName, opts) {
-    await this.waitUntilReady();
-
-    const { InternalProps } = this;
-    if (!this.hasTable(tableName)) {
-      const msg = `Table ${tableName} needs to added before adding fields to it!`;
-      throw Error(msg);
-    }
-
-    const table = InternalProps.tables[tableName];
-    if (table[fieldName] !== undefined) {
-      throw Error('Field already added!');
-    }
-
-    opts.type = opts.type.name;
-    table[fieldName] = opts;
-    await this.syncInternalProps();
-  }
-
-  hasTable(tableName) {
-    const { InternalProps } = this;
-    return InternalProps.tables[tableName] !== undefined;
-  }
-
-  handleLevelError(err) {
-    if (err.name !== 'NotFoundError') {
-      throw err;
-    }
-  }
-
-  async getCurrentTable(tableName) {
-    await this.readyPromise;
-
-    const { db, handleLevelError } = this;
-    return new Promise(resolve => {
-      db.get(tableName)
-        .then(tables => {
-          tables = this.convertDateJSON(tables);
-          resolve(tables);
-        })
-        .catch(err => {
-          handleLevelError(err);
-          resolve([]);
-        });
-    });
-  }
-
-  async saveTable(tableName, table) {
-    await this.readyPromise;
-    await this.db.put(tableName, table)
-      .catch(this.handleLevelError);
-  }
-
-  // The table hold all fields and an object
-  // while the table itself is a object!
-  // eg:
-  //    [
-  //      { id: 1, field: value }
-  //      { id: 2, date: DateObject }
-  //    ]
-  async addRow(tableName, fields = {}) {
-    await this.waitUntilReady();
-    if (!this.hasTable(tableName)) {
-      throw Error('Cannot add fields to a table that is not added!');
-    }
-
-    const table = await this.getCurrentTable(tableName);
-    fields = this._checkAndDefault(tableName, fields, table);
-    if (fields.id !== undefined) {
-      throw Error('Cannot pass custom id, it is auto generated!');
-    }
-
-    const { InternalProps } = this;
-    const tableOpts = InternalProps.tables[tableName];
-    const newId = tableOpts.ids.length;
-    tableOpts.ids.push(newId);
-    delete fields['id'];
-    fields['id'] = newId;
-
-    // add the filed to table
-    table.push(fields);
-
-    await this.syncInternalProps();
-    await this.saveTable(tableName, table);
-  }
-
-  async getAllRows(tableName) {
-    await this.readyPromise;
-
-    let rows = [];
-    await this.db.get(tableName)
-      .then(data => {
-        rows = this.convertDateJSON(data);
-      })
-      .catch(this.handleLevelError);
-    return rows;
-  }
-
-  hasRow(tableName, id) {
-    const { InternalProps } = this;
-    const tableIds = InternalProps.tables[tableName].ids;
-    return tableIds.includes(id);
-  }
-
-  async deleteRow(tableName, id) {
-    await this.readyPromise;
-
-    const { InternalProps } = this;
-    const table = await this.getCurrentTable(tableName);
-    let rowIndex = null;
-    table.filter((row, index) => {
-      if (row.id === id) {
-        rowIndex = index;
-      }
-    });
-
-    if (rowIndex === null) {
-      throw Error('Cannot delete a row that not added yet!');
-    }
-
-    const internalTableIds = InternalProps.tables[tableName].ids;
-    internalTableIds.splice(internalTableIds.indexOf(id), 1);
-    await this.syncInternalProps();
-
-    table.splice(rowIndex, 1);
-    await this.saveTable(tableName, table);
-  }
-
-  async updateRow(tableName, id, updatedFields) {
-    await this.waitUntilReady();
-    const table = await this.getCurrentTable(tableName);
-    if (!this.hasRow(tableName, id)) {
-      throw Error('Cannot update row that not added.');
-    }
-
-    let updateIndex;
-    table.forEach((row, index) => {
-      if (row.id === id)
-        updateIndex = id;
-    });
-
-    // it would be bad to let id get updated
-    delete updatedFields['id'];
-    table[updateIndex] = { ...table[updateIndex], ...updatedFields };
-    table[updateIndex] = this._checkAndDefault(tableName, table[updateIndex], table);
-    await this.saveTable(tableName, table);
-  }
-
-  // this check each row and make sure each fields have
-  // correct type and value!
-  _checkAndDefault(tableName, row, table) {
-    const { InternalProps } = this;
-    const fieldOpts = InternalProps.tables[tableName];
-    for (let field in fieldOpts) {
-      if (field === 'ids') {
-        continue;
-      }
-
-      const requirements = fieldOpts[field];
-      const fieldToAdd = row[field];
-      const isUndefined = fieldToAdd === undefined;
-      if (requirements.required && isUndefined)
-        throw Error(`The ${field} is required!`);
-
-      if (requirements.default && isUndefined)
-        row[field] = requirements.default;
-
-      if (requirements.type === 'Date' && requirements.timestamp) {
-        if (fieldToAdd) {
-          throw Error(`The field ${field} is set to timestamp, but a value was passed in!`);
-        }
-
-        row[field] = new Date();
-      }
-
-      const isStringField = requirements.type === 'String';
-      const thingToCheck = isStringField ? fieldToAdd.length : fieldToAdd;
-      const minMaxErrors = {
-        min: `${field} is less than it's min value ${requirements.min}.`,
-        max: `${field} is greater than it's max value ${requirements.max}.`
-      };
-
-      if (isStringField) {
-        minMaxErrors.min = `${field}'s is less than its required min length ${requirements.min}.`;
-        minMaxErrors.max = `${field}'s is greather its than required max length ${requirements.max}.`;
-      }
-
-      if (requirements.min && thingToCheck < requirements.min)
-        throw Error(minMaxErrors.min);
-
-      if (requirements.max && thingToCheck > requirements.max)
-       throw Error(minMaxErrors.max);
-
-      if (requirements.unique) {
-        let isUnique = true;
-        table.forEach(row => {
-          if (row[field] === fieldToAdd) {
-            isUnique = false;
-          }
-        });
-
-        if (!isUnique) {
-          throw Error(`${field} is set to unique, this new value is not unique.`);
-        }
-      }
-    }
-
-    return row;
+  
+  async hasField(fieldName) {
+    const res = await this.uplevel.hasField(this.tableName, fieldName);
+    return res;
   }
 }
 
-module.exports = Uplevel;
+class UplevelDB {
+  constructor(path) {
+    const levelDB = new level(path, {
+      valueEncoding: 'json'
+    });
+    
+    this.errors = level.errors;
+    this.InternalProps = null;
+    this.levelDB = levelDB;
+    this.isReady = false;
+    this.InternalPropsKey = '__InternalProps';
+    this.types = {
+      object: 'object',
+      boolean: 'boolean',
+      integer: 'integer',
+      float: 'float',
+      number: 'number',
+      array: 'array',
+      string: 'string'
+    };
+
+    this.readyPromise = levelDB.get(this.InternalPropsKey)
+      .then(props => {
+        this.InternalProps = props;    
+      })
+      .catch(err => {
+        this.handleError(err);
+        this.InternalProps = { tables: {} };
+        this.isReady = true;
+      });
+  }
+  
+  async waitUntilReady() {
+    await this.readyPromise;
+  }
+  
+  async sync() {
+    const { InternalProps, InternalPropsKey, levelDB } = this;
+    await levelDB.put(InternalPropsKey, InternalProps);
+  }
+  
+  async putIntoDB(key, value) {
+    const { levelDB } = this;
+    await this.waitUntilReady();
+    try {
+      await levelDB.put(key, value);
+    } catch (e) {
+      this.handleError(e);
+    }
+
+    await this.sync();
+  }
+  
+  async getFromDB(key) {
+    const { levelDB } = this;
+    let value;
+    await this.waitUntilReady();
+    try {
+      value = await levelDB.get(key);
+    } catch (e) {
+      this.handleError(e);
+    }
+
+    return value;
+  }
+  
+  async deleteFromDB(key) {
+    const { levelDB } = this;
+    await this.waitUntilReady();
+    await levelDB.del(key);
+  }
+  
+  async getInternalProps() {
+    await this.waitUntilReady();
+    return this.InternalProps;
+  }
+  
+  async hasTable(tableName) {
+    const InternalProps = await this.getInternalProps();
+    return (InternalProps.tables[tableName] !== undefined);
+  }
+  
+  async createTable(tableName) {
+    const tableAddedAlready = await this.hasTable(tableName);
+    if (tableAddedAlready) {
+      throw new Error('Table already added!');
+    }
+    
+    const InternalProps = await this.getInternalProps();
+    InternalProps.tables[tableName] = { ids: [] };
+    await this.sync();
+    await this.putIntoDB(tableName, []);
+    return new UplevelTableInstance(this, tableName);
+  }
+  
+  async deleteTable(tableName) {
+    const tableExsists = await this.hasTable(tableName);
+    if (!tableExsists) {
+      throw new Error('Cannot delete table not added to db.');
+    }
+    
+    const InternalProps = await this.getInternalProps();
+    delete InternalProps.tables[tableName];
+    await this.sync();
+    await this.deleteFromDB(tableName);
+  }
+  
+  async addField(tableName, field) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Cannot add field to table ${tableName}, that's not added to db.`);
+    }
+
+    if (!field.name) {
+      throw new Error('The name of the field is required.');
+    }
+    
+    if (field.name === 'ids') {
+      throw new Error('ids field is used for internal purpose.');
+    }
+    
+    if (!field.type) {
+      throw new Error('The type of the field is required.');
+    }
+    
+    const validTypes = Object.keys(this.types);
+    if (!validTypes.include(field.type)) {
+      throw new Error(`The type ${field.type} is not a valid type!`);
+    }
+    
+    const InternalProps = await this.getInternalProps();
+    const table = InternalProps.tables[tableName];
+    const fieldName = field.name;
+    delete field.name;
+    table[fieldName] = field;
+    await this.sync();
+    return this.addField;
+  }
+  
+  async hasField(tableName, fieldName) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Table ${tableName} is not added, so cannot check for fields.`);
+    }
+
+    const InternalProps = await this.getInternalProps();
+    const table = InternalProps.tables[tableName];
+    return (table[fieldName] !== undefined);
+  }
+  
+  async validateRow(tableName, row) {
+    const InternalProps = await this.getInternalProps();
+    const fields = InternalProps.tables[tableName];
+    for (let field of Object.keys(row)) {
+      if (field === 'id')
+        throw new Error('id cannot be passed it auto generated.');
+      if (fields[field] === undefined)
+        throw new Error('Cannot add a field that not added to db by .addField method');
+    }
+    
+    const { types } = this;
+    for (let field of Object.keys(fields)) {
+      const fieldDetail = fields[field];
+      let value = row[field];
+
+      if (field === 'ids') {
+        continue;
+      }
+      
+      if (field.required) {
+    
+      }
+    }
+  }
+  
+  async addRow(tableName, row) {
+    row = await this.validateRow(tableName, row);
+  }
+}
+
+module.exports = UplevelDB;
+module.exports.UplevelTableInstance = UplevelTableInstance;
