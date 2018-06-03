@@ -140,6 +140,16 @@ class UplevelDB {
       throw new Error(`Cannot add field to table ${tableName}, that's not added to db.`);
     }
 
+    // checking ids should return true, and
+    // and its handled below so we just don't check for
+    // it here.
+    if (field.name !== 'ids') {
+      const fieldAdded = await this.hasField(tableName, field.name);
+      if (fieldAdded) {
+        throw new Error(`Field has already been added!`);
+      }
+    }
+
     if (!field.name) {
       throw new Error('The name of the field is required.');
     }

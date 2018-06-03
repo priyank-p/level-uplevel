@@ -70,11 +70,13 @@ async function assertSameInternalProps(tableName) {
 
 (async function test_add_field() {
   const tableName = generateRandomName();
-  const table = db.createTable(tableName);
+  const table = await db.createTable(tableName);
   
+  await table.addField({ name: 'TEST_FIELD_1__', type: db.types.string });
   const errors = [
     [ 'NotYetAddedTable', {}, /^Error: Cannot add field to table .*, that's not added to db.$/ ],
     [ tableName, {}, /^Error: The name of the field is required.$/ ],
+    [ tableName, { name: 'TEST_FIELD_1__' }, /^Error: Field has already been added!$/ ],
     [ tableName, { name: 'ids' }, /^Error: ids field is used for internal purpose.$/ ],
     [ tableName, { name: 'Test' }, /^Error: The type of the field is required.$/ ],
     [ tableName, { name: 'Test', type: 'IncorrectType' }, /^Error: The type IncorrectType is not a valid type!$/ ],
@@ -86,3 +88,8 @@ async function assertSameInternalProps(tableName) {
     }, error);
   }
 })();
+
+process.on('unhandledRejection', (err) => {
+  console.error(err);
+  process.exit(1);
+});
