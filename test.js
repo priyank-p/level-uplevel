@@ -68,7 +68,7 @@ async function assertSameInternalProps(tableName) {
   assert.deepStrictEqual(await db.hasTable(tableName), false);
 })();
 
-(async function test_add_field() {
+(async function test_add_and_has_field() {
   const tableName = generateRandomName();
   const table = await db.createTable(tableName);
   
@@ -95,6 +95,10 @@ async function assertSameInternalProps(tableName) {
   
   assert.deepStrictEqual(await table.hasField('TestField'), true);
   await assertSameInternalProps(tableName);
+  
+  await assertThrows(async () => {
+    await db.hasField('__EEXIST__', 'SomeRandomField');
+  }, /^Error: Table __EEXIST__ is not added, so cannot check for fields.$/);
 })();
 
 process.on('unhandledRejection', (err) => {
