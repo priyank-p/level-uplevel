@@ -8,7 +8,7 @@ class UplevelTableInstance {
 
   async addField(field) {
     await this.uplevel.addField(this.tableName, field);
-    return this.add;
+    return this.addField;
   }
   
   async hasField(fieldName) {
