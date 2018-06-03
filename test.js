@@ -87,6 +87,14 @@ async function assertSameInternalProps(tableName) {
       await db.addField(tableName, field);
     }, error);
   }
+  
+  await table.addField({
+    name: 'TestField',
+    type: db.types.string
+  });
+  
+  assert.deepStrictEqual(await table.hasField('TestField'), true);
+  await assertSameInternalProps(tableName);
 })();
 
 process.on('unhandledRejection', (err) => {
