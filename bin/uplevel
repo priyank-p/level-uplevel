@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+
+const repl = require('repl');
+const path = require('path');
+const Uplevel = require('../uplevel');
+
+const DB_PATH = path.join(__dirname, 'test-db');
+const db = new Uplevel(DB_PATH);
+
+const uplevelRepl = repl.start({ prompt: '> ' });
+uplevelRepl.context.db = db;
+uplevelRepl.context.DB_PATH = DB_PATH;
+
+const seperator = '--------------------------------------------------------';
+uplevelRepl.defineCommand('get', {
+  help: 'Get all the row in given table. e.g. .get <table-name>',
+  action(tableName) {
+    db.getFromDB(tableName)
+      .then(table => {
+        console.log(table);
+        console.log(seperator);
+        this.displayPrompt();
+      })
+      .catch(err => { throw err });
+  }
+});
+
+uplevelRepl.defineCommand('create', {
+  help: 'Creates a table in db.',
+  action(tableName) {
+    db.createTable(tableName)
+    .then(() => {
+      console.log(seperator);
+      this.displayPrompt();
+    })
+    .catch(err => { throw err });
+  }
+});
+
+uplevelRepl.defineCommand('has', {
+  help: 'Prints wheather a db is added or not.',
+  action(tableName) {
+    db.hasTable(tableName)
+    .then(res => {
+      console.log(res);
+      console.log(seperator);
+      this.displayPrompt();
+    })
+    .catch(err => { throw err });
+  }
+});
+
+
+uplevelRepl.defineCommand('delete', {
+  help: 'Deletes a table from db.',
+  action(tableName) {
+    db.deleteTable(tableName)
+    .then(() => {
+      console.log(seperator);
+      this.displayPrompt();
+    })
+    .catch(err => { throw err });
+  }
+});

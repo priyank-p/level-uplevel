@@ -6,7 +6,7 @@ class UplevelTableInstance {
     this.tableName = tableName;
   }
 
-  async add(field) {
+  async addField(field) {
     await this.uplevel.addField(this.tableName, field);
     return this.add;
   }
@@ -15,6 +15,11 @@ class UplevelTableInstance {
     const res = await this.uplevel.hasField(this.tableName, fieldName);
     return res;
   }
+  
+  async addRow(row) {
+    const newId = await this.uplevel.addRow(this.tableName, row);
+    return newId;
+  }
 }
 
 class UplevelDB {
@@ -22,7 +27,7 @@ class UplevelDB {
     const levelDB = new level(path, {
       valueEncoding: 'json'
     });
-    
+
     this.errors = level.errors;
     this.InternalProps = null;
     this.levelDB = levelDB;
@@ -31,8 +36,7 @@ class UplevelDB {
     this.types = {
       object: 'object',
       boolean: 'boolean',
-      integer: 'integer',
-      float: 'float',
+      date: 'date',
       number: 'number',
       array: 'array',
       string: 'string'
@@ -48,16 +52,22 @@ class UplevelDB {
         this.isReady = true;
       });
   }
-  
+
+  handleError(err) {
+    if (err.name !== 'NotFoundError') {
+      throw err;
+    }
+  }
+
   async waitUntilReady() {
     await this.readyPromise;
   }
-  
+
   async sync() {
     const { InternalProps, InternalPropsKey, levelDB } = this;
     await levelDB.put(InternalPropsKey, InternalProps);
   }
-  
+
   async putIntoDB(key, value) {
     const { levelDB } = this;
     await this.waitUntilReady();
@@ -69,7 +79,7 @@ class UplevelDB {
 
     await this.sync();
   }
-  
+
   async getFromDB(key) {
     const { levelDB } = this;
     let value;
@@ -82,48 +92,48 @@ class UplevelDB {
 
     return value;
   }
-  
+
   async deleteFromDB(key) {
     const { levelDB } = this;
     await this.waitUntilReady();
     await levelDB.del(key);
   }
-  
+
   async getInternalProps() {
     await this.waitUntilReady();
     return this.InternalProps;
   }
-  
+
   async hasTable(tableName) {
     const InternalProps = await this.getInternalProps();
     return (InternalProps.tables[tableName] !== undefined);
   }
-  
+
   async createTable(tableName) {
     const tableAddedAlready = await this.hasTable(tableName);
     if (tableAddedAlready) {
       throw new Error('Table already added!');
     }
-    
+
     const InternalProps = await this.getInternalProps();
     InternalProps.tables[tableName] = { ids: [] };
     await this.sync();
     await this.putIntoDB(tableName, []);
     return new UplevelTableInstance(this, tableName);
   }
-  
+
   async deleteTable(tableName) {
     const tableExsists = await this.hasTable(tableName);
     if (!tableExsists) {
       throw new Error('Cannot delete table not added to db.');
     }
-    
+
     const InternalProps = await this.getInternalProps();
     delete InternalProps.tables[tableName];
     await this.sync();
     await this.deleteFromDB(tableName);
   }
-  
+
   async addField(tableName, field) {
     const tableAdded = await this.hasTable(tableName);
     if (!tableAdded) {
@@ -143,7 +153,7 @@ class UplevelDB {
     }
     
     const validTypes = Object.keys(this.types);
-    if (!validTypes.include(field.type)) {
+    if (!validTypes.includes(field.type)) {
       throw new Error(`The type ${field.type} is not a valid type!`);
     }
     
@@ -181,19 +191,90 @@ class UplevelDB {
     for (let field of Object.keys(fields)) {
       const fieldDetail = fields[field];
       let value = row[field];
-
       if (field === 'ids') {
         continue;
       }
       
-      if (field.required) {
-    
+      if (fieldDetail.type === types.date) {
+        row[field] = value = new Date(value);
+        min = new Date(min);
+        max = new Date(max);
       }
+
+      if (fieldDetail.type === types.string)
+        row[field] = value = value.toString();
+      if (value === undefined || value === '' || isNaN(value))
+        row[field] = value = null;
+      if (fieldDetail.required && fieldDetail.isNullable === false) 
+        throw new Error(`${field} is required`);
+
+      let { min, max } = fieldDetail;
+      const minError = 'The value is greater than it\'s maximum required value:';
+      const maxError = 'The value is less than it\'s minimum required value:';
+      if (fieldDetail.type === types.string) {
+        row[field] = value = value.toString();
+        if (min && value.length < min)
+          throw new Error(`${minError} ${min}`);
+        if (max && value.length > max)
+          throw new Error(`${maxError} ${max}`);
+
+        continue;
+      }
+
+      if (fieldDetail.type === types.object ||
+          fieldDetail.type === types.Array) {
+            continue;
+          }
+      
+      if (fieldDetail.type === types.number) {
+        row[field] = value = Number(value);
+      }
+
+      if (min && value.length < min)
+          throw new Error(`${minError} ${min}`);
+      if (max && value.length > max)
+        throw new Error(`${maxError} ${max}`);  
     }
+  
+    return row;
   }
   
   async addRow(tableName, row) {
     row = await this.validateRow(tableName, row);
+    const currentRow = await this.getFromDB(tableName);
+    const lastRow = currentRow[currentRow.length - 1];
+    const newId = lastRow.id + 1;
+    row.id = newId;
+    
+    currentRow.push(row);
+    await this.putIntoDB(tableName, row);
+    return newId;
+  }
+  
+  async updateRow(tableName, { id, row }) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Table ${tableName} is not added, cannot update row on table not added!`);
+    }
+
+    row = this.validateRow(tableName, row);
+    const currentRow = await this.getFromDB(tableName);
+
+    // we don't want allow updating of id's!
+    delete row[id];
+    let updatedRow = { ...currentRow[id], ...row };
+    updatedRow = this.validateRow(updatedRow);
+    this.putIntoDB(tableName, updatedRow);
+  }
+  
+  async addRow(tableName, id) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Table ${tableName} is not added, cannot check if row is added!`);
+    }
+
+    const row = await this.getFromDB(tableName);
+    return (row[id] !== undefined);
   }
 }
 
