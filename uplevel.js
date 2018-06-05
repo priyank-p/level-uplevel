@@ -25,6 +25,11 @@ class UplevelTableInstance {
     const row = await this.uplevel.getRows(this.tableName);
     return row;
   }
+  
+  async updateRow(tableName, data) {
+    await this.uplevel.updateRow(tableName, data);
+    return this.updateRow;
+  }
 }
 
 class UplevelDB {
