@@ -101,6 +101,46 @@ async function assertSameInternalProps(tableName) {
   }, /^Error: Table __EEXIST__ is not added, so cannot check for fields.$/);
 })();
 
+const { types } = db;
+(async function test_validate_row_type_string() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+
+  await table.addField({
+    name: 'TestStringField',
+    type: types.string,
+    required: true
+  });
+  
+  await table.addField({
+    name: 'TestStringMinMax',
+    type: types.string,
+    required: true,
+    min: 2,
+    max: 4
+  });
+  
+  await table.addField({
+    name: 'TestStringDefaults',
+    type: types.string,
+    required: true,
+    default: 1
+  });
+  
+  await table.addRow({
+    TestStringField: '<Test>',
+    TestStringMinMax: '12'
+  });
+  
+  const rows = await table.getRows();
+  assert.deepEqual(rows, {
+    TestStringField: '<Test>',
+    TestStringMinMax: '12',
+    TestStringDefaults: '1',
+    id: 0
+  });
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err);
   process.exit(1);

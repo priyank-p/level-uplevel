@@ -20,6 +20,11 @@ class UplevelTableInstance {
     const newId = await this.uplevel.addRow(this.tableName, row);
     return newId;
   }
+  
+  async getRows() {
+    const row = await this.uplevel.getRows(this.tableName);
+    return row;
+  }
 }
 
 class UplevelDB {
@@ -196,7 +201,7 @@ class UplevelDB {
       if (fields[field] === undefined)
         throw new Error('Cannot add a field that not added to db by .addField method');
     }
-    
+
     const { types } = this;
     for (let field of Object.keys(fields)) {
       const fieldDetail = fields[field];
@@ -210,13 +215,18 @@ class UplevelDB {
         min = new Date(min);
         max = new Date(max);
       }
-
+      
+      if (value === undefined || value === '' ||
+          (fieldDetail.type === types.number && isNaN(value)))
+        row[field] = value = fieldDetail.default || null;
       if (fieldDetail.type === types.string)
         row[field] = value = value.toString();
-      if (value === undefined || value === '' || isNaN(value))
-        row[field] = value = null;
-      if (fieldDetail.required && fieldDetail.isNullable === false) 
-        throw new Error(`${field} is required`);
+
+      if (fieldDetail.required &&
+          fieldDetail.isNullable !== true &&
+          value === null) {
+            throw new Error(`${field} is required`);
+          }
 
       let { min, max } = fieldDetail;
       const minError = 'The value is greater than it\'s maximum required value:';
@@ -253,12 +263,11 @@ class UplevelDB {
     row = await this.validateRow(tableName, row);
     const currentRow = await this.getFromDB(tableName);
     const lastRow = currentRow[currentRow.length - 1];
-    const newId = lastRow.id + 1;
-    row.id = newId;
-    
+
+    row.id = lastRow ? lastRow.id + 1 : 0;
     currentRow.push(row);
     await this.putIntoDB(tableName, row);
-    return newId;
+    return row.id;
   }
   
   async updateRow(tableName, { id, row }) {
@@ -276,15 +285,15 @@ class UplevelDB {
     updatedRow = this.validateRow(updatedRow);
     this.putIntoDB(tableName, updatedRow);
   }
-  
-  async addRow(tableName, id) {
+
+  async getRows(tableName) {
     const tableAdded = await this.hasTable(tableName);
     if (!tableAdded) {
-      throw new Error(`Table ${tableName} is not added, cannot check if row is added!`);
+      throw new Error(`Table ${tableName} is not added, cannot get rows!`);
     }
 
-    const row = await this.getFromDB(tableName);
-    return (row[id] !== undefined);
+    const rows = await this.getFromDB(tableName);
+    return rows;
   }
 }
 
