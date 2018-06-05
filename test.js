@@ -133,12 +133,32 @@ const { types } = db;
   });
   
   const rows = await table.getRows();
-  assert.deepEqual(rows, {
+  assert.deepEqual(rows, [{
     TestStringField: '<Test>',
     TestStringMinMax: '12',
     TestStringDefaults: '1',
     id: 0
+  }]);
+})();
+
+(async function test_update_row_method() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+  
+  await table.addField({ name: 'test', type: types.string });
+  await table.addRow({ test: 'test-value' });
+  
+  const row = await table.getRows();
+  assert.deepEqual(row, [{ test: 'test-value', id: 0 }]);
+
+  await table.updateRow(0, {
+    test: 'updated-value'
   });
+  
+  assert(await table.getRows(), [{
+    test: 'updated-value',
+    id: 0
+  }]);
 })();
 
 process.on('unhandledRejection', (err) => {

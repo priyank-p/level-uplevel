@@ -26,8 +26,8 @@ class UplevelTableInstance {
     return row;
   }
   
-  async updateRow(tableName, data) {
-    await this.uplevel.updateRow(tableName, data);
+  async updateRow(id, row) {
+    await this.uplevel.updateRow(this.tableName, id, row);
     return this.updateRow;
   }
 }
@@ -271,24 +271,24 @@ class UplevelDB {
 
     row.id = lastRow ? lastRow.id + 1 : 0;
     currentRow.push(row);
-    await this.putIntoDB(tableName, row);
+    await this.putIntoDB(tableName, currentRow);
     return row.id;
   }
   
-  async updateRow(tableName, { id, row }) {
+  async updateRow(tableName, id, row) {
     const tableAdded = await this.hasTable(tableName);
     if (!tableAdded) {
       throw new Error(`Table ${tableName} is not added, cannot update row on table not added!`);
     }
 
-    row = this.validateRow(tableName, row);
     const currentRow = await this.getFromDB(tableName);
-
-    // we don't want allow updating of id's!
-    delete row[id];
     let updatedRow = { ...currentRow[id], ...row };
-    updatedRow = this.validateRow(updatedRow);
-    this.putIntoDB(tableName, updatedRow);
+    
+    // delete row and add it back after validation
+    delete updatedRow['id'];
+    updatedRow = await this.validateRow(tableName, updatedRow);
+    updatedRow['id'] = id;
+    await this.putIntoDB(tableName, updatedRow);
   }
 
   async getRows(tableName) {
