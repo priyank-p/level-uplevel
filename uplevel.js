@@ -202,7 +202,7 @@ class UplevelDB {
     const fields = InternalProps.tables[tableName];
     for (let field of Object.keys(row)) {
       if (field === 'id')
-        throw new Error('id cannot be passed it auto generated.');
+        throw new Error('id cannot be passed in, it is auto generated.');
       if (fields[field] === undefined)
         throw new Error('Cannot add a field that not added to db by .addField method');
     }
