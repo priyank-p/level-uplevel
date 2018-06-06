@@ -26,6 +26,11 @@ class UplevelTableInstance {
     return row;
   }
   
+  async hasRow(id) {
+    const isRowAdded = await this.uplevel.hasRow(this.tableName, id);
+    return isRowAdded;
+  }
+
   async updateRow(id, row) {
     await this.uplevel.updateRow(this.tableName, id, row);
     return this.updateRow;
@@ -299,6 +304,23 @@ class UplevelDB {
     currentRow.push(row);
     await this.putIntoDB(tableName, currentRow);
     return row.id;
+  }
+  
+  async hasRow(tableName, id) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Table ${tableName} is not added, cannot check for row!`);
+    }
+    
+    const rows = await this.getRows(tableName);
+    let isRowAdded = false;
+    rows.forEach(row => {
+      if (row.id === id) {
+        isRowAdded = true;
+      }
+    });
+    
+    return isRowAdded;
   }
   
   async updateRow(tableName, id, row) {

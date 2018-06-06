@@ -255,6 +255,21 @@ const { types } = db;
   ]);
 })();
 
+(async function test_hasRow_function() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+  
+  await table.addField({ name: 'test', type: types.string });
+  await table.addRow({ test: 'asd' });
+  
+  assert.deepStrictEqual(await table.hasRow(0), true);
+  assert.deepStrictEqual(await table.hasRow(1), false);
+  
+  await assertThrows(async () => {
+    await db.hasRow('NOT_YET_ADDED', 0);
+  }, /^Error: Table NOT_YET_ADDED is not added, cannot check for row!$/);
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err);
   process.exit(1);
