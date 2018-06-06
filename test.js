@@ -296,6 +296,19 @@ const { types } = db;
   }
 })();
 
+(async function test_adding_boolean() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+  
+  await table.addField({ name: 'RequiredBoolean', type: types.boolean, required: true });
+  await table.addField({ name: 'RequiredBooleanDefault', type: types.boolean, required: true, default: false });
+
+  await table.addRow({ RequiredBoolean: true });
+  assert.deepEqual(await table.getRows(), [
+    { RequiredBoolean: true, RequiredBooleanDefault: false, id: 0 }  
+  ]);
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err);
   process.exit(1);

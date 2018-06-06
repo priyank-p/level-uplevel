@@ -229,9 +229,7 @@ class UplevelDB {
     const table = InternalProps.tables[tableName];
     return (table[fieldName] !== undefined);
   }
-  
-  // TODO: This methods still needs to handle
-  // booleans
+
   async validateRow(tableName, row) {
     const InternalProps = await this.getInternalProps();
     const fields = InternalProps.tables[tableName];
@@ -255,6 +253,10 @@ class UplevelDB {
       if (value === undefined || value === '' ||
           (fieldDetail.type === types.number && isNaN(value))) {
         row[field] = value = defaultValue || null;
+        
+        if (fieldDetail.type === types.boolean && typeof defaultValue === 'boolean') {
+          row[field] = value = defaultValue;
+        }
       }
 
       if (value && fieldDetail.type === types.string)
