@@ -49,7 +49,7 @@ async function filterUserBy(field, value) {
   console.timeEnd('create-db');
 
   console.time('add-users');
-   await addUser({
+  await addUser({
     first_name: 'Test',
     last_name: 'User',
     birth_date: new Date('January 10 2007'),

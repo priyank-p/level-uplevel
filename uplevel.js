@@ -189,7 +189,7 @@ class UplevelDB {
     if (field.name !== 'ids') {
       const fieldAdded = await this.hasField(tableName, field.name);
       if (fieldAdded) {
-        throw new Error(`Field has already been added!`);
+        throw new Error('Field has already been added!');
       }
     }
 
@@ -249,7 +249,7 @@ class UplevelDB {
       }
 
       const defaultValue = typeof fieldDetail.default === 'function' ?
-                           fieldDetail.default() : fieldDetail.default;
+        fieldDetail.default() : fieldDetail.default;
       if (value === undefined || value === '' ||
           (fieldDetail.type === types.number && isNaN(value))) {
         row[field] = value = defaultValue || null;
@@ -273,8 +273,8 @@ class UplevelDB {
       if (fieldDetail.required &&
           fieldDetail.isNullable !== true &&
           value === null) {
-            throw new Error(`${field} is required`);
-          }
+        throw new Error(`${field} is required`);
+      }
 
       let { min, max } = fieldDetail;
       const minError = 'The value is greater than it\'s maximum required value:';
@@ -290,11 +290,11 @@ class UplevelDB {
       }
 
       if (fieldDetail.type === types.object) {
-            continue;
-          }
+        continue;
+      }
       
       if (min && value < min)
-          throw new Error(`${minError} ${min}`);
+        throw new Error(`${minError} ${min}`);
       if (max && value > max)
         throw new Error(`${maxError} ${max}`);  
     }
@@ -355,7 +355,7 @@ class UplevelDB {
     
     const isRowAdded = await this.hasRow(tableName, id);
     if (!isRowAdded) {
-      throw new Error(`Cannot delete row that is not yet added!`);
+      throw new Error('Cannot delete row that is not yet added!');
     }
     
     const rows = await this.getRows(tableName);

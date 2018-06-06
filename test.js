@@ -20,7 +20,7 @@ if (fs.existsSync(testDBPath)) {
 
 async function assertThrows(func, exception) {
   let error;
-  await func().catch(err => { error = err });
+  await func().catch(err => { error = err; });
   assert.throws(() => {
     if (error)
       throw error;
@@ -145,7 +145,7 @@ const { types } = db;
     id: 0
   }]);
   
-   const errors = [
+  const errors = [
     [{ TestStringMinMax: '1223333', TestStringField: '1' }, /^Error: The value is less than it\'s minimum required value:/],
     [{ TestStringMinMax: '1', TestStringField: '1' }, /^Error: The value is greater than it\'s maximum required value:/],
   ];
