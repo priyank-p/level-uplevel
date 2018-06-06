@@ -116,10 +116,10 @@ Return all the data stored in a table. This method return array:
 
   The ids are auto generated, and return by `getAllRows` method.
 
-#### `deleteTable(tableName) -> Promise`
+#### `deleteTable(tableName) -> Promise(rows)`
   - `tableName` (`String`): the name of table.
 
-  Delete a table from db.
+  Delete a table from db, and return rows.
 
 #### `updateRow(tableName, id, fields) -> Promise(rows)`
   - `tableName` (`String`): the name of table.
@@ -142,6 +142,6 @@ to pass the `tableName` parameter again and again.
 #### `getRows() -> Promise(rows)`
 #### `hasRow(id) -> Promise(Boolean)`
 #### `updateRow(id, row) -> Promise`
-#### `deleteRow(id) -> Promise`
+#### `deleteRow(id) -> Promise(rows)`
 
 Documentation of each method is documented above.

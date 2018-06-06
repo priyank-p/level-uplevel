@@ -366,6 +366,7 @@ class UplevelDB {
     
     rows.splice(indexToDelete, 1);
     await this.putIntoDB(tableName, rows);
+    return rows;
   }
 
   async getRows(tableName) {
