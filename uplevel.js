@@ -342,6 +342,7 @@ class UplevelDB {
     updatedRow = await this.validateRow(tableName, updatedRow);
     updatedRow['id'] = id;
     await this.putIntoDB(tableName, updatedRow);
+    return updatedRow;
   }
   
   async deleteRow(tableName, id) {
