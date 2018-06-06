@@ -170,8 +170,15 @@ const { types } = db;
     await table.updateRow(0, {
       TestMin: new Date('March 1 2017'),
       TestMax: new Date('April 2 2018')
-    })
+    });
   }, /^Error: The value is greater than it's maximum required value/);
+  
+  await assertThrows(async () => {
+    await table.updateRow(0, {
+      TestMin: new Date('March 1 2018'),
+      TestMax: new Date('April 2 2020')
+    });
+  }, /^Error: The value is less than it's minimum required value/);
 })();
 
 (async function test_update_row_method() {

@@ -234,20 +234,20 @@ class UplevelDB {
 
       const defaultValue = typeof fieldDetail.default === 'function' ?
                            fieldDetail.default() : fieldDetail.default;
+      if (value === undefined || value === '' ||
+          (fieldDetail.type === types.number && isNaN(value))) {
+        row[field] = value = defaultValue || null;
+      }
+
       if (value && fieldDetail.type === types.string)
         row[field] = value = value.toString();
       if (value && fieldDetail.type === types.number)
         row[field] = value = Number(value);
-      
+
       if (value && fieldDetail.type === types.date) {
         row[field] = value = new Date(value);
         fieldDetail.min = new Date(fieldDetail.min);
         fieldDetail.max = new Date(fieldDetail.max);
-      }
-      
-      if (value === undefined || value === '' ||
-          (fieldDetail.type === types.number && isNaN(value))) {
-        row[field] = value = defaultValue || null;
       }
 
       if (fieldDetail.required &&
@@ -272,7 +272,7 @@ class UplevelDB {
       if (fieldDetail.type === types.object) {
             continue;
           }
-
+      
       if (min && value < min)
           throw new Error(`${minError} ${min}`);
       if (max && value > max)
