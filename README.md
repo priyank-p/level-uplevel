@@ -52,11 +52,12 @@ This property hold all the `level.errors` of the `level` module used internally.
 This method returns a promise that you should `await` which
 gets resolved once uplevel is ready.
 
-#### `createTable(tableName) -> Promise`
-  - `tableName` (`string`):  the name of table
+#### `createTable(tableName) -> Promise(UplevelTableInstance)`
+  - `tableName` (`string`):  the name of table to create
 
-A table once added can have fields, and rows. If table is already
-created it just returns.
+A table once added can have fields, and rows. If table is already added
+this will throw an `Error: Table already added!`. Field in table describe the
+markup of the table, while rows hold the data as desribed per fields.
 
 #### `addField(tableName, fieldName, opts) -> Promise`
   - `tableName` (`string`): The table to store this
