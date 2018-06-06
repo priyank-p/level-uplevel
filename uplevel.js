@@ -380,6 +380,15 @@ class UplevelDB {
     const rows = await this.getFromDB(tableName);
     return rows;
   }
+  
+  async getTableInstance(tableName) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Table ${tableName} is not added, cannot get the instance!`);
+    }
+    
+    return new UplevelTableInstance(this, tableName);
+  }
 }
 
 module.exports = UplevelDB;
