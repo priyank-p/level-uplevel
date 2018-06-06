@@ -92,12 +92,12 @@ For `Array`, `String` the `min` and `max` are their length.
 
   Note: Do check `isReady` before using this method.
 
-#### `addRow(tableName, fields) -> Promise`
+#### `addRow(tableName, fields) -> Promise(id)`
   - `tableName` (`String`) - the table where to add this row.
   - `fields` (`Object`): the key should be the name of the field,
     and the value shoudl be the value of field.
 
-  This will add data to the table.
+  This will add data to the table, and return the `id` of the added field.
 
 #### `getAllRows(tableName) -> Promise(Array)`
   - `tableName` (`String`) - the name of the table
