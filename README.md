@@ -69,15 +69,16 @@ markup of the table, while rows hold the data as desribed per fields.
   field into.
   - `fieldName` (`string`): the name of the filed, 'id' is not allowed, and names are case-sensitive.
   - `opts` (`object`):
-    * `type` (`String | Date | Number | Object | Boolean`):
-      the type of the field
-    * `min` (`Number`, `Date`): The minimum value of field (will only work for date, and numbers).
-    * `max` (`Number`, `Date`): The maximun value of field (will only work for date, and numbers).
+    * `type` (Uplevel.types): any one of the type form `types` property.
+    * `min` (`Number`, `Date`): The minimum value of field.
+    * `max` (`Number`, `Date`): The maximun value of field.
     * `required` (`boolean`): weather the field is required!
-    * `default` (any): the default value.
-    * `timestamp` (`Boolean`): Make the field a timestamp, add current date.
-    * `unique` (`true | false`): default is false, makes that field unique. Also
+    * `default` (any): the default value, this can be a function.
+    * `isNullable`: weather the field could be null.
     a note that all the rows have internally generated unique id field.
+
+The `min` and `max` property works diffrently for diffrent types.
+For `Array`, `String` the `min` and `max` are their length.
 
 #### `hasTable(tableName) -> Promise(Boolean)`
   - `tableName` - the name of the table to check
