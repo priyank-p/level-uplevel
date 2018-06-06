@@ -134,7 +134,7 @@ Return all the data stored in a table. This method return array:
 
   Return the `UplevelTableInstance` for easier manipulation of table.
 
-## UplevelTableInstance
+## `UplevelTableInstance`
 
 This a convience class, that holds all the methods you can
 do with a table. This instance is returned when you create a
