@@ -231,7 +231,7 @@ const { types } = db;
   const errors = [
     [{ NumberRequired: NaN  }, /^Error: NumberRequired is required$/],
     [{ NumberRequired: 1, id: 23212 }, /^Error: id cannot be passed in, it is auto generated.$/],
-    [{ SomeNotAddedField: 128912 }, /^Error: Cannot add a field that not added to db by .addField method$/]
+    [{ SomeNotAddedField: 128912 }, /^Error: Cannot add field \(SomeNotAddedField\) that not added to db by .addField method$/]
   ];
   
   for (const [row, error] of errors) {
