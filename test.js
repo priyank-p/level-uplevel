@@ -171,8 +171,7 @@ const { types } = db;
   await table.addField({ name: 'DefaultField', type: types.date, default: testDefault });
   await table.addField({ name: 'TestMin', type: types.date, min: new Date('January 1 2018') });
   await table.addField({ name: 'TestMax', type: types.date, max: new Date('December 20 2019') });
-  
-  assert(called);
+
   await table.addRow({
     TestMin: new Date('March 1 2018'),
     TestMax: new Date('April 2 2018')
@@ -195,6 +194,8 @@ const { types } = db;
       TestMax: new Date('April 2 2020')
     });
   }, /^Error: The value is less than it's minimum required value/);
+
+  assert(called);
 })();
 
 (async function test_update_row_method() {
