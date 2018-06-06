@@ -1,7 +1,6 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const sinon = require('sinon');
 const Uplevel = require('./uplevel');
 
 const testDBPath = path.resolve(__dirname, 'test-db');
@@ -146,8 +145,8 @@ const { types } = db;
   }]);
   
   const errors = [
-    [{ TestStringMinMax: '1223333', TestStringField: '1' }, /^Error: The value is less than it\'s minimum required value:/],
-    [{ TestStringMinMax: '1', TestStringField: '1' }, /^Error: The value is greater than it\'s maximum required value:/],
+    [{ TestStringMinMax: '1223333', TestStringField: '1' }, /^Error: The value is less than it's minimum required value:/],
+    [{ TestStringMinMax: '1', TestStringField: '1' }, /^Error: The value is greater than it's maximum required value:/],
   ];
   
   for (const [row, error] of errors) {
@@ -173,6 +172,7 @@ const { types } = db;
   await table.addField({ name: 'TestMin', type: types.date, min: new Date('January 1 2018') });
   await table.addField({ name: 'TestMax', type: types.date, max: new Date('December 20 2019') });
   
+  assert(called);
   await table.addRow({
     TestMin: new Date('March 1 2018'),
     TestMax: new Date('April 2 2018')
@@ -310,6 +310,6 @@ const { types } = db;
 })();
 
 process.on('unhandledRejection', (err) => {
-  console.error(err);
+  console.error(err); // eslint-disable-line no-console
   process.exit(1);
 });
