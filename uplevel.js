@@ -89,6 +89,23 @@ class UplevelDB {
 
     await this.sync();
   }
+  
+  normalizeDates(obj) {
+    for (let prop in obj) {
+      if (typeof obj[prop] === 'object') {
+        obj[prop] = this.normalizeDates(obj[prop]);
+      }
+
+      if (typeof obj[prop] === 'string' && isNaN(Number(obj[prop]))) {
+        const parsedDate = Date.parse(obj[prop]);
+        if (!isNaN(parsedDate)) {
+          obj[prop] = new Date(parsedDate);
+        }
+      }
+    }
+
+    return obj;
+  }
 
   async getFromDB(key) {
     const { levelDB } = this;
@@ -100,7 +117,7 @@ class UplevelDB {
       this.handleError(e);
     }
 
-    return value;
+    return this.normalizeDates(value);
   }
 
   async deleteFromDB(key) {
@@ -214,18 +231,24 @@ class UplevelDB {
       if (field === 'ids') {
         continue;
       }
+
+      const defaultValue = typeof fieldDetail.default === 'function' ?
+                           fieldDetail.default() : fieldDetail.default;
+      if (value && fieldDetail.type === types.string)
+        row[field] = value = value.toString();
+      if (value && fieldDetail.type === types.number)
+        row[field] = value = Number(value);
       
-      if (fieldDetail.type === types.date) {
+      if (value && fieldDetail.type === types.date) {
         row[field] = value = new Date(value);
-        min = new Date(min);
-        max = new Date(max);
+        fieldDetail.min = new Date(fieldDetail.min);
+        fieldDetail.max = new Date(fieldDetail.max);
       }
       
       if (value === undefined || value === '' ||
-          (fieldDetail.type === types.number && isNaN(value)))
-        row[field] = value = fieldDetail.default || null;
-      if (fieldDetail.type === types.string)
-        row[field] = value = value.toString();
+          (fieldDetail.type === types.number && isNaN(value))) {
+        row[field] = value = defaultValue || null;
+      }
 
       if (fieldDetail.required &&
           fieldDetail.isNullable !== true &&
@@ -250,10 +273,6 @@ class UplevelDB {
           fieldDetail.type === types.Array) {
             continue;
           }
-      
-      if (fieldDetail.type === types.number) {
-        row[field] = value = Number(value);
-      }
 
       if (min && value.length < min)
           throw new Error(`${minError} ${min}`);

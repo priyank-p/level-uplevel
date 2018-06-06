@@ -141,6 +141,32 @@ const { types } = db;
   }]);
 })();
 
+(async function test_validate_row_type_date() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+  
+  let called = false;
+  let defaultDate;
+  function testDefault() {
+    called = true;
+    defaultDate = defaultDate || new Date();
+    return defaultDate;
+  }
+
+  await table.addField({ name: 'DefaultField', type: types.date, default: testDefault });
+  await table.addField({ name: 'TestMin', type: types.date, min: new Date('January 1 2018') });
+  await table.addField({ name: 'TestMax', type: types.date, max: new Date('December 20 2019') });
+  
+  await table.addRow({
+    TestMin: new Date('March 1 2018'),
+    TestMax: new Date('April 2 2018')
+  });
+
+  assert.deepEqual(await table.getRows(), [
+    { DefaultField: defaultDate, TestMin: new Date('March 1 2018'), TestMax: new Date('April 2 2018'), id: 0  }
+  ]);
+})();
+
 (async function test_update_row_method() {
   const tableName = generateRandomName();
   const table = await db.createTable(tableName);
