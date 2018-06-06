@@ -47,6 +47,11 @@ is to be used to know if `hasTable` or `hasRow` can be used.
 
 This property hold all the `level.errors` of the `level` module used internally.
 
+#### `types` propery
+
+This is an object that hold all the possible types, that could be used
+for the fields, possible types: (`string`, `boolean`, `date`, `number`, `array`, `string`)
+
 #### `waitUntilReady -> Promise`
 
 This method returns a promise that you should `await` which
