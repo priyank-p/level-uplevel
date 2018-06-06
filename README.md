@@ -99,7 +99,7 @@ For `Array`, `String` the `min` and `max` are their length.
 
   This will add data to the table, and return the `id` of the added field.
 
-#### `getAllRows(tableName) -> Promise(Array)`
+#### `getRows(tableName) -> Promise(Array)`
   - `tableName` (`String`) - the name of the table
 
 Return all the data stored in a table. This method return array:
