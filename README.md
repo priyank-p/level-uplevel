@@ -138,7 +138,7 @@ Return all the data stored in a table. This method return array:
 
 This a convience class, that holds all the methods you can
 do with a table. This instance is returned when you create a
-db using `Uplevel.createTable` method or by `getTableInstance`. This make it so you don't need
+table using `Uplevel.createTable` method or by `getTableInstance`. This make it so you don't need
 to pass the `tableName` parameter again and again.
 
 #### `addField(field) -> Promise`
