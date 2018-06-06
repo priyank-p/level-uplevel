@@ -259,7 +259,7 @@ class UplevelDB {
       let { min, max } = fieldDetail;
       const minError = 'The value is greater than it\'s maximum required value:';
       const maxError = 'The value is less than it\'s minimum required value:';
-      if (fieldDetail.type === types.string) {
+      if (fieldDetail.type === types.string || fieldDetail.type === types.array) {
         row[field] = value = value.toString();
         if (min && value.length < min)
           throw new Error(`${minError} ${min}`);
@@ -269,14 +269,13 @@ class UplevelDB {
         continue;
       }
 
-      if (fieldDetail.type === types.object ||
-          fieldDetail.type === types.Array) {
+      if (fieldDetail.type === types.object) {
             continue;
           }
 
-      if (min && value.length < min)
+      if (min && value < min)
           throw new Error(`${minError} ${min}`);
-      if (max && value.length > max)
+      if (max && value > max)
         throw new Error(`${maxError} ${max}`);  
     }
   

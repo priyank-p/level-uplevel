@@ -165,6 +165,13 @@ const { types } = db;
   assert.deepEqual(await table.getRows(), [
     { DefaultField: defaultDate, TestMin: new Date('March 1 2018'), TestMax: new Date('April 2 2018'), id: 0  }
   ]);
+  
+  await assertThrows(async () => {
+    await table.updateRow(0, {
+      TestMin: new Date('March 1 2017'),
+      TestMax: new Date('April 2 2018')
+    })
+  }, /^Error: The value is greater than it's maximum required value/);
 })();
 
 (async function test_update_row_method() {
