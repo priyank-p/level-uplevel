@@ -47,18 +47,18 @@ is to be used to know if `hasTable` or `hasRow` can be used.
 
 This property hold all the `level.errors` of the `level` module used internally.
 
-#### `waitUntilReady`
+#### `waitUntilReady -> Promise`
 
 This method returns a promise that you should `await` which
 gets resolved once uplevel is ready.
 
-#### `createTable(tableName)`
+#### `createTable(tableName) -> Promise`
   - `tableName` (`string`):  the name of table
 
 A table once added can have fields, and rows. If table is already
 created it just returns.
 
-#### `addField(tableName, fieldName, opts)`
+#### `addField(tableName, fieldName, opts) -> Promise`
   - `tableName` (`string`): The table to store this
   field into.
   - `fieldName` (`string`): the name of the filed, 'id' is not allowed, and names are case-sensitive.
@@ -73,26 +73,26 @@ created it just returns.
     * `unique` (`true | false`): default is false, makes that field unique. Also
     a note that all the rows have internally generated unique id field.
 
-#### `hasTable(tableName) -> Boolean`
+#### `hasTable(tableName) -> Promise(Boolean)`
   - `tableName` - the name of the table to check
 
   Return a `Boolean` weather the table is added or not.
   Note: Do check `isReady` before using this method.
 
-#### `hasRow(tableNAme, id) -> Boolean`
+#### `hasRow(tableNAme, id) -> Promise(Boolean)`
   - `tableName` - the name of the table to check
   - `id` - Row id to check wheather it exists or not.
 
   Note: Do check `isReady` before using this method.
 
-#### `addRow(tableName, fields)`
+#### `addRow(tableName, fields) -> Promise`
   - `tableName` (`String`) - the table where to add this row.
   - `fields` (`Object`): the key should be the name of the field,
     and the value shoudl be the value of field.
 
   This will add data to the table.
 
-#### `getAllRows(tableName) -> Array`
+#### `getAllRows(tableName) -> Promise(Array)`
   - `tableName` (`String`) - the name of the table
 
 Return all the data stored in a table. This method return array:
@@ -103,18 +103,18 @@ Return all the data stored in a table. This method return array:
 ]
 ```
 
-#### `deleteRow(tableName, id)`
+#### `deleteRow(tableName, id) -> Promise`
   - `tableName` (`String`): the name of table.
   - `id` (`Number`): The id of the to delete.
 
   The ids are auto generated, and return by `getAllRows` method.
 
-#### `deleteTable(tableName)`
+#### `deleteTable(tableName) -> Promise`
   - `tableName` (`String`): the name of table.
 
   Delete a table from db.
 
-#### `updateRow(tableName, id, fields)`
+#### `updateRow(tableName, id, fields) -> Promise`
   - `tableName` (`String`): the name of table.
   - `id` (`Number`): the id of the row to update.
   - `fields` (`Object`): the fiels to update.
