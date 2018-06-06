@@ -35,6 +35,11 @@ class UplevelTableInstance {
     await this.uplevel.updateRow(this.tableName, id, row);
     return this.updateRow;
   }
+  
+  async deleteRow(id) {
+    await this.uplevel.deleteRow(this.tableName, id);
+    return this.deleteRow;
+  }
 }
 
 class UplevelDB {
@@ -337,6 +342,29 @@ class UplevelDB {
     updatedRow = await this.validateRow(tableName, updatedRow);
     updatedRow['id'] = id;
     await this.putIntoDB(tableName, updatedRow);
+  }
+  
+  async deleteRow(tableName, id) {
+    const tableAdded = await this.hasTable(tableName);
+    if (!tableAdded) {
+      throw new Error(`Table ${tableName} is not added, cannot delete row!`);
+    }
+    
+    const isRowAdded = await this.hasRow(tableName, id);
+    if (!isRowAdded) {
+      throw new Error(`Cannot delete row that is not yet added!`);
+    }
+    
+    const rows = await this.getRows(tableName);
+    let indexToDelete;
+    rows.forEach((row, index) => {
+      if (row.id ==id) {
+        indexToDelete = index;
+      }
+    });
+    
+    rows.splice(indexToDelete, 1);
+    await this.putIntoDB(tableName, rows);
   }
 
   async getRows(tableName) {

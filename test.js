@@ -270,6 +270,32 @@ const { types } = db;
   }, /^Error: Table NOT_YET_ADDED is not added, cannot check for row!$/);
 })();
 
+(async function test_hasRow_function() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+  
+  await table.addField({ name: 'test', type: types.string });
+  await table.addRow({ test: 'asd' });
+  
+  assert.deepEqual(await table.getRows(), [
+    { test: 'asd', id: 0 }  
+  ]);
+  
+  await table.deleteRow(0);
+  assert.deepEqual(await table.getRows(), []);
+  
+  const errors = [
+    [ tableName, 123, /^Error: Cannot delete row that is not yet added!$/ ],
+    [ 'NotYetAdded', 2313, /^Error: Table NotYetAdded is not added, cannot delete row!$/ ]
+  ];
+  
+  for (const [tableName, id, error] of errors) {
+    await assertThrows(async () => {
+      await db.deleteRow(tableName, id);
+    }, error);
+  }
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err);
   process.exit(1);
