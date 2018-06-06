@@ -8,8 +8,7 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "nyc": "11.7.3",
-    "sinon": "5.0.7"
+    "nyc": "^11.7.3"
   },
   "scripts": {
     "lint": "eslint . --cache",
