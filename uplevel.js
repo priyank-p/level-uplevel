@@ -178,7 +178,7 @@ class UplevelDB {
     }
     
     const rows = await this.getRows(tableName);
-    const rowsAdded = rows.length !== 0;;;
+    const rowsAdded = rows.length !== 0;
     if (rowsAdded) {
       throw new Error('Cannot add field once row have been added, it could break validation!');
     }
