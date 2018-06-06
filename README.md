@@ -128,3 +128,20 @@ Return all the data stored in a table. This method return array:
 
   Allows you to update a row in a table, and return the
   rows of the table.
+
+## UplevelTableInstance
+
+This a convience class, that holds all the methods you can
+do with a table. This instance is returned when you create a
+db using `Uplevel.createTable` method. This make it so you don't need
+to pass the `tableName` parameter again and again.
+
+#### `addField(field) -> Promise`
+#### `hasField(fieldName) -> Promise(Boolean)`
+#### `addRow(row) -> Promise(id)`
+#### `getRows() -> Promise(rows)`
+#### `hasRow(id) -> Promise(Boolean)`
+#### `updateRow(id, row) -> Promise`
+#### `deleteRow(id) -> Promise`
+
+Documentation of each method is documented above.
