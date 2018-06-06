@@ -139,6 +139,17 @@ const { types } = db;
     TestStringDefaults: '1',
     id: 0
   }]);
+  
+   const errors = [
+    [{ TestStringMinMax: '1223333', TestStringField: '1' }, /^Error: The value is less than it\'s minimum required value:/],
+    [{ TestStringMinMax: '1', TestStringField: '1' }, /^Error: The value is greater than it\'s maximum required value:/],
+  ];
+  
+  for (const [row, error] of errors) {
+    await assertThrows(async () => {
+      await table.addRow(row);
+    }, error);
+  }
 })();
 
 (async function test_validate_row_type_date() {
@@ -194,11 +205,49 @@ const { types } = db;
   await table.updateRow(0, {
     test: 'updated-value'
   });
-  
+
   assert(await table.getRows(), [{
     test: 'updated-value',
     id: 0
   }]);
+  
+  await assertThrows(async () => {
+    await db.updateRow('SOME_NOT_ADDED_TABLE');
+  }, /^Error: Table SOME_NOT_ADDED_TABLE is not added, cannot update row on table not added!$/);
+})();
+
+(async function test_validate_row() {
+  let tableName = generateRandomName();
+  let table = await db.createTable(tableName);
+  
+  await table.addField({ name: 'NumberRequired', type: types.number, required: true });
+  
+  const errors = [
+    [{ NumberRequired: NaN  }, /^Error: NumberRequired is required$/],
+    [{ NumberRequired: 1, id: 23212 }, /^Error: id cannot be passed in, it is auto generated.$/],
+    [{ SomeNotAddedField: 128912 }, /^Error: Cannot add a field that not added to db by .addField method$/]
+  ];
+  
+  for (const [row, error] of errors) {
+    await assertThrows(async () => {
+      await table.addRow(row);
+    }, error);
+  }
+  
+  tableName = generateRandomName();
+  table = await db.createTable(tableName);
+  
+  await table.addField({ name: 'number', type: types.number });
+  await table.addField({ name: 'object', type: types.object });
+  
+  await table.addRow({
+    number: 123,
+    object: { a: 1 }
+  });
+  
+  assert.deepEqual(await table.getRows(), [
+    { number: 123, object: { a: 1 }, id: 0 }
+  ]);
 })();
 
 process.on('unhandledRejection', (err) => {
