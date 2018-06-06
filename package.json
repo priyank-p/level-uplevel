@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "eslint . --cache",
     "lint-fix": "eslint . --fix --cache",
-    "test": "node test.js",
+    "test": "node test && eslint . --cache",
     "coverage": "nyc -r lcov -r text-summary node test.js"
   },
   "repository": {
