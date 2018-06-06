@@ -99,6 +99,11 @@ async function assertSameInternalProps(tableName) {
   await assertThrows(async () => {
     await db.hasField('__EEXIST__', 'SomeRandomField');
   }, /^Error: Table __EEXIST__ is not added, so cannot check for fields.$/);
+  
+  await table.addRow({ TestField: 'String' });
+  await assertThrows(async () => {
+    await table.addField({ name: 'sdsadas' });
+  }, /^Error: Cannot add field once row have been added, it could break validation!$/);
 })();
 
 const { types } = db;

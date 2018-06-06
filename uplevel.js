@@ -166,6 +166,12 @@ class UplevelDB {
     if (!tableAdded) {
       throw new Error(`Cannot add field to table ${tableName}, that's not added to db.`);
     }
+    
+    const rows = await this.getRows(tableName);
+    const rowsAdded = rows.length !== 0;;;
+    if (rowsAdded) {
+      throw new Error('Cannot add field once row have been added, it could break validation!');
+    }
 
     // checking ids should return true, and
     // and its handled below so we just don't check for
@@ -259,7 +265,7 @@ class UplevelDB {
       let { min, max } = fieldDetail;
       const minError = 'The value is greater than it\'s maximum required value:';
       const maxError = 'The value is less than it\'s minimum required value:';
-      if (fieldDetail.type === types.string || fieldDetail.type === types.array) {
+      if (value && fieldDetail.type === types.string || fieldDetail.type === types.array) {
         row[field] = value = value.toString();
         if (min && value.length < min)
           throw new Error(`${minError} ${min}`);
