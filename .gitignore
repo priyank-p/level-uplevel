@@ -3,4 +3,5 @@ test-db/
 coverage/
 .nyc_output/
 
+.eslintcache
 npm-debug.log
