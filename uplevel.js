@@ -221,7 +221,7 @@ class UplevelDB {
   }
   
   // TODO: This methods still needs to handle
-  // booleans.
+  // booleans
   async validateRow(tableName, row) {
     const InternalProps = await this.getInternalProps();
     const fields = InternalProps.tables[tableName];
