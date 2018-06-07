@@ -1,7 +1,7 @@
 const path = require('path');
 const uplevel = require('../lib/uplevel');
 const DB_DIR = path.join(__dirname, '/user-db');
-const db = new uplevel(DB_DIR); // TODO: probably should using absolute path here.
+const db = new uplevel(DB_DIR);
 
 /*
   Make a users, table with following fields
@@ -45,12 +45,6 @@ async function addUser(user) {
 async function getUsers() {
   const users = await db.getRows('users');
   return users;
-}
-
-// TODO: Use it somewhere!
-async function filterUserBy(field, value) {
-  const users = await getUsers();
-  return users.filter(user => user[field] === value);
 }
 
 (async function() {
