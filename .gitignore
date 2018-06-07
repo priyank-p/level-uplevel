@@ -2,6 +2,7 @@ node_modules/
 test-db/
 coverage/
 .nyc_output/
+examples/user-db/
 
 .eslintcache
 npm-debug.log
