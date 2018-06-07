@@ -1,29 +1,41 @@
-const uplevel = require('./level-uplevel');
-const db = new uplevel('./user-db'); // TODO: probably should using absolute path here.
+const path = require('path');
+const uplevel = require('../lib/uplevel');
+const DB_DIR = path.join(__dirname, '/user-db');
+const db = new uplevel(DB_DIR); // TODO: probably should using absolute path here.
 
 /*
   Make a users, table with following fields
   first_name | last_name | birthdate | is_bot | created_at | fav_num
 */
 async function createUsersTable() {
-  await db.createTable('users');
-
+  const tableCreated = await db.hasTable('users');
+  if (tableCreated) {
+    return;
+  }
+  
+  const { types } = db;
+  const users = await db.createTable('users');
   const nameOpts = {
-    type: String,
-    min: 6,
+    type: types.string,
     max: 100,
     required: true
   };
 
-  await db.addField('users', 'first_name', nameOpts);
-  await db.addField('users', 'last_name', nameOpts);
+  await users.addField({
+    name: 'first_name',
+    ...nameOpts
+  });
+  await users.addField({
+    name: 'last_name',
+    ...nameOpts
+  });
 
   // date related fileds
-  await db.addField('users', 'birth_date', { type: Date, min: Date('January 1 2004'), required: true });
-  await db.addField('users', 'created_at', { type: Date, timestamp: true });
+  await users.addField({ name: 'birth_date', type: types.date, min: new Date('January 1 2004'), required: true });
+  await users.addField({ name: 'created_at', type: types.date, default: Date.now });
 
-  await db.addField('users', 'is_bot', { type: Boolean, required: true });
-  await db.addField('users', 'fav_num', { type: Number, required: true });
+  await users.addField({ name: 'is_bot', type: types.boolean, default: false });
+  await users.addField({ name: 'fav_num', type: types.number, required: true });
 }
 
 async function addUser(user) {
@@ -31,7 +43,7 @@ async function addUser(user) {
 }
 
 async function getUsers() {
-  const users = await db.getAllRows('users');
+  const users = await db.getRows('users');
   return users;
 }
 
@@ -42,8 +54,6 @@ async function filterUserBy(field, value) {
 }
 
 (async function() {
-  await db.waitUntilReady();
-
   console.time('create-db');
   await createUsersTable(); // on average 16.27ms.
   console.timeEnd('create-db');
