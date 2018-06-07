@@ -145,8 +145,8 @@ const { types } = db;
   }]);
   
   const errors = [
-    [{ TestStringMinMax: '1223333', TestStringField: '1' }, /^Error: The value is less than it's minimum required value:/],
-    [{ TestStringMinMax: '1', TestStringField: '1' }, /^Error: The value is greater than it's maximum required value:/],
+    [{ TestStringMinMax: '1223333', TestStringField: '1' }, /^Error: The value is greater than it's maximum required value:/],
+    [{ TestStringMinMax: '1', TestStringField: '1' }, /^Error: The value is less than it's minimum required value:/],
   ];
   
   for (const [row, error] of errors) {
@@ -186,14 +186,14 @@ const { types } = db;
       TestMin: new Date('March 1 2017'),
       TestMax: new Date('April 2 2018')
     });
-  }, /^Error: The value is greater than it's maximum required value/);
+  }, /^Error: The value is less than it's minimum required value/);
   
   await assertThrows(async () => {
     await table.updateRow(0, {
       TestMin: new Date('March 1 2018'),
       TestMax: new Date('April 2 2020')
     });
-  }, /^Error: The value is less than it's minimum required value/);
+  }, /^Error: The value is greater than it's maximum required value/);
 
   assert(called);
 })();
