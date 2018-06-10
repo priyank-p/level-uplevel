@@ -212,7 +212,7 @@ const { types } = db;
     test: 'updated-value'
   });
 
-  assert(await table.getRows(), [{
+  assert.deepEqual(await table.getRows(), [{
     test: 'updated-value',
     id: 0
   }]);
