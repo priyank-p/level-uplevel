@@ -64,12 +64,12 @@ A table once added can have fields, and rows. If table is already added
 this will throw an `Error: Table already added!`. Field in table describe the
 markup of the table, while rows hold the data as desribed per fields.
 
-#### `addField(tableName, fieldName, opts) -> Promise`
+#### `addField(tableName, field) -> Promise`
   - `tableName` (`string`): The table to store this
   field into.
-  - `fieldName` (`string`): the name of the filed, 'id' is not allowed, and names are case-sensitive.
-  - `opts` (`object`):
-    * `type` (Uplevel.types): any one of the type form `types` property.
+  - `field` (`object`):
+    * `name` (`String`, required): the name of the field.
+    * `type` (Uplevel.types, required): any one of the type form `types` property.
     * `min` (`Number`, `Date`): The minimum value of field.
     * `max` (`Number`, `Date`): The maximun value of field.
     * `required` (`boolean`): weather the field is required!
