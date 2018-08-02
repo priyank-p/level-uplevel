@@ -333,6 +333,28 @@ const { types } = db;
   }, /^Error: Cannot delete field that not added yet!$/);
 })();
 
+(async function test_rename_field() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+
+  const fieldName = 'RENAME_ME';
+  const newField = 'RENAMED';
+  await table.addField({ name: fieldName, type: types.string });
+  await table.addField({ name: 'AnotherField', type: types.number });
+  await table.addRow({ [fieldName]: 'name', AnotherField: 1 });
+  await table.addRow({ AnotherField: 2 });
+  assert.deepEqual(await table.getRows(), [
+    { RENAME_ME: 'name', AnotherField: 1, id: 0 },
+    { AnotherField: 2, RENAME_ME: null, id: 1 }
+  ]);
+
+  await table.renameField(fieldName, newField);
+  assert.deepEqual(await table.getRows(), [
+    { AnotherField: 1, id: 0, RENAMED: 'name' },
+    { AnotherField: 2, id: 1, RENAMED: null }
+  ]);
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err); // eslint-disable-line no-console
   process.exit(1);
