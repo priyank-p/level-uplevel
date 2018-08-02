@@ -310,6 +310,29 @@ const { types } = db;
   ]);
 })();
 
+(async function test_delete_field() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+
+  const fieldName = 'testField';
+  await table.addField({ name: fieldName, type: types.string });
+  assert(await table.hasField(fieldName));
+  await table.deleteField(fieldName);
+  assert.deepEqual(await table.hasField(fieldName), false);
+
+  await assertThrows(async () => {
+    await table.deleteField('id');
+  }, /^Error: Cannot delete id\(s\) field from db.$/);
+
+  await assertThrows(async () => {
+    await table.deleteField('ids');
+  }, /^Error: Cannot delete id\(s\) field from db.$/);
+
+  await assertThrows(async () => {
+    await table.deleteField('NON_EXISTENT');
+  }, /^Error: Cannot delete field that not added yet!$/);
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err); // eslint-disable-line no-console
   process.exit(1);
