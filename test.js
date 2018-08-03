@@ -374,7 +374,7 @@ const { types } = db;
   await assertThrows(async () => {
     const opts = { name: 's', type: types.number, required: true };
     await table.migrations.addField(opts);
-  }, /^Error: s is required$/);
+  }, /^Error: The row validation seems not to pass, hence the field was not added!/);
 })();
 
 process.on('unhandledRejection', (err) => {
