@@ -157,6 +157,8 @@ to pass the `tableName` parameter again and again.
 
 #### `addField(field) -> Promise`
 #### `hasField(fieldName) -> Promise(Boolean)`
+#### `deleteField(fieldName) -> Promise(void)`
+#### `renameField(oldField, newField) -> Promise(void)`
 #### `addRow(row) -> Promise(id)`
 #### `getRows() -> Promise(rows)`
 #### `hasRow(id) -> Promise(Boolean)`
