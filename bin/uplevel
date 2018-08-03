@@ -2,7 +2,7 @@
 
 const repl = require('repl');
 const path = require('path');
-const Uplevel = require('../uplevel');
+const Uplevel = require('../lib/uplevel');
 
 const DB_PATH = path.join(__dirname, 'test-db');
 const db = new Uplevel(DB_PATH);
@@ -29,11 +29,11 @@ uplevelRepl.defineCommand('create', {
   help: 'Creates a table in db.',
   action(tableName) {
     db.createTable(tableName)
-    .then(() => {
-      console.log(seperator);
-      this.displayPrompt();
-    })
-    .catch(err => { throw err });
+      .then(() => {
+        console.log(seperator);
+        this.displayPrompt();
+      })
+      .catch(err => { throw err });
   }
 });
 
@@ -41,24 +41,23 @@ uplevelRepl.defineCommand('has', {
   help: 'Prints wheather a db is added or not.',
   action(tableName) {
     db.hasTable(tableName)
-    .then(res => {
-      console.log(res);
-      console.log(seperator);
-      this.displayPrompt();
-    })
-    .catch(err => { throw err });
+      .then(res => {
+        console.log(res);
+        console.log(seperator);
+        this.displayPrompt();
+      })
+      .catch(err => { throw err });
   }
 });
-
 
 uplevelRepl.defineCommand('delete', {
   help: 'Deletes a table from db.',
   action(tableName) {
     db.deleteTable(tableName)
-    .then(() => {
-      console.log(seperator);
-      this.displayPrompt();
-    })
-    .catch(err => { throw err });
+      .then(() => {
+        console.log(seperator);
+        this.displayPrompt();
+      })
+      .catch(err => { throw err });
   }
 });
