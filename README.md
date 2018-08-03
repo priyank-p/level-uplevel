@@ -99,6 +99,20 @@ For `Array`, `String` the `min` and `max` are their length.
 
   This will add data to the table, and return the `id` of the added field.
 
+#### `deleteField(tableName, fieldName) -> Promise(void)`
+  - `tableName` (`String`) - the table name.
+  - `fieldName` (`String`): the name of the field to delete.
+
+  This method delete the field from the row! Not this does not delete
+  the field from added rows.
+
+#### `renameField(tableName, oldField, newField) -> Promise(void)`
+  - `tableName` (`String`) - the table name.
+  - `oldField` (`String`): the name of the field to rename.
+  - `newField` (`String`): the new name of the field.
+
+  This method renames the field in the rows.
+
 #### `getRows(tableName) -> Promise(Array)`
   - `tableName` (`String`) - the name of the table
 
