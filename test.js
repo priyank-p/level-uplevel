@@ -355,6 +355,28 @@ const { types } = db;
   ]);
 })();
 
+(async function test_add_field_migrations() {
+  const tableName = generateRandomName();
+  const table = await db.createTable(tableName);
+
+  function populateFalse(row) {
+    row.notified = false;
+    return row;
+  }
+
+  await table.addField({ name: 'test', type: types.string });
+  await table.addRow({ test: '1' });
+  await table.migrations.addField({ name: 'notified', type: types.boolean }, populateFalse);
+  assert.deepEqual(await table.getRows(), [
+    { test: '1', notified: false, id: 0 }
+  ]);
+
+  await assertThrows(async () => {
+    const opts = { name: 's', type: types.number, required: true };
+    await table.migrations.addField(opts);
+  }, /^Error: s is required$/);
+})();
+
 process.on('unhandledRejection', (err) => {
   console.error(err); // eslint-disable-line no-console
   process.exit(1);
