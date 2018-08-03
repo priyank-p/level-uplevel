@@ -101,7 +101,7 @@ async function assertSameInternalProps(tableName) {
   
   await table.addRow({ TestField: 'String' });
   await assertThrows(async () => {
-    await table.addField({ name: 'sdsadas' });
+    await table.addField({ name: 'sdsadas', type: types.string });
   }, /^Error: Cannot add field once row have been added, it could break validation!$/);
 })();
 
