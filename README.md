@@ -35,7 +35,8 @@ process.on('unhandledRejection', (error, promise) => {
 
 All the methods, return a promise execept an chosen few as indicated,
 which make a use of `InternalProps` that is sync between each call, which
-acts like a cache store.
+acts like a cache store. We also have started to add minimal support for migrations
+and will add more migration methods.
 
 #### `isReady` property
 
@@ -154,6 +155,15 @@ This a convience class, that holds all the methods you can
 do with a table. This instance is returned when you create a
 table using `Uplevel.createTable` method or by `getTableInstance`. This make it so you don't need
 to pass the `tableName` parameter again and again.
+
+### Migrations
+
+#### `migrations.addField(field, populate) -> Promise(void)`
+  - `field` (`Object`): field property that is passed in `addField` method.
+  - `populate` (`Function`): This function is called with argument of row and
+    you can change it and return the row to make sure validation passes.
+
+  This function only adds field if the validation passes.
 
 #### `addField(field) -> Promise`
 #### `hasField(fieldName) -> Promise(Boolean)`
