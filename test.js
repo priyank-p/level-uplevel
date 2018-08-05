@@ -371,6 +371,7 @@ const { types } = db;
     { test: '1', notified: false, id: 0 }
   ]);
 
+  await table.migrations.addField({ name: 'notified', type: types.boolean }, populateFalse);
   await assertThrows(async () => {
     const opts = { name: 's', type: types.number, required: true };
     await table.migrations.addField(opts);
