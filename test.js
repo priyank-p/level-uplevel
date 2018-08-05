@@ -371,6 +371,8 @@ const { types } = db;
     { test: '1', notified: false, id: 0 }
   ]);
 
+  // test that running it again does not throw validation error,
+  // and so it returns if the field is added.
   await table.migrations.addField({ name: 'notified', type: types.boolean }, populateFalse);
   await assertThrows(async () => {
     const opts = { name: 's', type: types.number, required: true };
