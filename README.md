@@ -163,7 +163,9 @@ to pass the `tableName` parameter again and again.
   - `populate` (`Function`): This function is called with argument of row and
     you can change it and return the row to make sure validation passes.
 
-  This function only adds field if the validation passes.
+  This function only adds field if the validation passes. This method does not throw
+  error if called again, make it and all the other migrations property re-runable again
+  and again.
 
 #### `addField(field) -> Promise`
 #### `hasField(fieldName) -> Promise(Boolean)`
