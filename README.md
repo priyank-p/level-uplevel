@@ -53,7 +53,7 @@ This property hold all the `level.errors` of the `level` module used internally.
 This is an object that hold all the possible types, that could be used
 for the fields, possible types: (`string`, `boolean`, `date`, `number`, `array`, `string`)
 
-#### `waitUntilReady -> Promise`
+#### `waitUntilReady -> Promise(void)`
 
 This method returns a promise that you should `await` which
 gets resolved once uplevel is ready.
@@ -65,7 +65,7 @@ A table once added can have fields, and rows. If table is already added
 this will throw an `Error: Table already added!`. Field in table describe the
 markup of the table, while rows hold the data as desribed per fields.
 
-#### `addField(tableName, field) -> Promise`
+#### `addField(tableName, field) -> Promise(void)`
   - `tableName` (`string`): The table to store this
   field into.
   - `field` (`object`):
@@ -114,7 +114,7 @@ For `Array`, `String` the `min` and `max` are their length.
 
   This method renames the field in the rows.
 
-#### `getRows(tableName) -> Promise(Array)`
+#### `getRows(tableName) -> Promise(rows[])`
   - `tableName` (`String`) - the name of the table
 
 Return all the data stored in a table. This method return array:
@@ -125,18 +125,18 @@ Return all the data stored in a table. This method return array:
 ]
 ```
 
-#### `deleteRow(tableName, id) -> Promise`
+#### `deleteRow(tableName, id) -> Promise(void)`
   - `tableName` (`String`): the name of table.
   - `id` (`Number`): The id of the to delete.
 
   The ids are auto generated, and return by `getAllRows` method.
 
-#### `deleteTable(tableName) -> Promise(rows)`
+#### `deleteTable(tableName) -> Promise(rows[])`
   - `tableName` (`String`): the name of table.
 
-  Delete a table from db, and return rows.
+  Delete a table from db, and returns rows.
 
-#### `updateRow(tableName, id, fields) -> Promise(rows)`
+#### `updateRow(tableName, id, fields) -> Promise(rows[])`
   - `tableName` (`String`): the name of table.
   - `id` (`Number`): the id of the row to update.
   - `fields` (`Object`): the fiels to update.
@@ -167,7 +167,7 @@ to pass the `tableName` parameter again and again.
   error if called again, make it and all the other migrations property re-runable again
   and again.
 
-#### `addField(field) -> Promise`
+#### `addField(field) -> Promise(void)`
 #### `hasField(fieldName) -> Promise(Boolean)`
 #### `deleteField(fieldName) -> Promise(void)`
 #### `renameField(oldField, newField) -> Promise(void)`
@@ -177,4 +177,4 @@ to pass the `tableName` parameter again and again.
 #### `updateRow(id, row) -> Promise`
 #### `deleteRow(id) -> Promise(rows)`
 
-Documentation of each method is documented above.
+Documentation of each method above is documented above (except migrations ones, since they are not documented above).
