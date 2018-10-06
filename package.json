@@ -1,6 +1,6 @@
 {
   "name": "level-uplevel",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A neat wrapper fo leveldb, that allow you to use tables, fields and rows.",
   "main": "lib/uplevel.js",
   "files": [
